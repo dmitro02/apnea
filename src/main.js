@@ -16,14 +16,27 @@ const BEEP_LONG = getBeep(4000)
 
 let session
 
+const getStartBtn = () => document.querySelector('.start-btn')
+const getRecordBtn = () => document.querySelector('.record-btn')
+
 const startSession = () => {
     if (!session || !session.isRunning) {
+        renderStopBtn()
+        BEEP_SHORT.play()
+
         session = new Session(
             NUMBER_OF_ROUNDS, 
             ROUND_DURATION, 
             COUNTDOWN_DURATION
         )
-        session.run()
+        session
+            .run()
+            .then(() => {
+                renderStartBtn()        
+                BEEP_LONG.play()
+                renderElapsedTime(0)
+                console.log(JSON.stringify(session.rounds, null, 4));
+            })
     }
 }
 
@@ -31,10 +44,18 @@ const stopSession = () => {
     session.willBeStopped = true
 }
 
-const printElapsedTime = (elapsedSec) => {
+const logElapsedTime = (elapsedSec) => {
+    console.log(formatTime(elapsedSec))
+}
+
+const renderElapsedTime = (elapsedSec) => {
+    document.querySelector('.time-indicator').textContent = formatTime(elapsedSec)
+}
+
+const formatTime = (elapsedSec) => {
     let min = Math.floor(elapsedSec / 60)
     let sec = elapsedSec - min * 60
-    console.log(formatValue(min) + ':' + formatValue(sec))
+    return formatValue(min) + ':' + formatValue(sec)
 }
 
 const formatValue = (value) => {
@@ -55,8 +76,38 @@ const handlePressSpaceBtn = (e) => {
     }
 }
 
+const renderStopBtn = () => {
+    const startBtn = getStartBtn()
+    startBtn.removeEventListener('click', handleClickOnStartBtn)
+    startBtn.addEventListener('click', handleClickOnStopBtn)
+    startBtn.textContent = 'stop'
+    getRecordBtn().disabled = false
+}
+
+const renderStartBtn = () => {
+    const startBtn = getStartBtn()
+    startBtn.removeEventListener('click', handleClickOnStopBtn)
+    startBtn.addEventListener('click', handleClickOnStartBtn)
+    startBtn.textContent = 'start'
+    getRecordBtn().disabled = true
+}
+
+const handleClickOnStartBtn = () => {
+    startSession()
+}
+
+const handleClickOnStopBtn = () => {
+    stopSession()
+}
+
+const handleClickOnRecordBtn = () => {
+    recordHoldTime()
+}
+
 const configureEventListeners = () => {
     window.addEventListener('keyup', handlePressSpaceBtn)
+    getStartBtn().addEventListener('click', handleClickOnStartBtn)
+    getRecordBtn().addEventListener('click', handleClickOnRecordBtn)
 }
 
 class Session {
@@ -74,20 +125,13 @@ class Session {
     }
     async run() {
         this.isRunning = true
-        BEEP_SHORT.play()
-        console.log('SESSION STARTED')
-    
         for (let i = 1; i <= this.numberOfRounds; i++) {
             this.currentRound = new Round(
                 i, this.roundDuration, this.countdownDuration)
             this.rounds.push(this.currentRound)
             if (await this.currentRound.run()) break
         }
-    
         this.isRunning = false
-        BEEP_LONG.play()
-        console.log('SESSION COMPLETED')
-        console.log(JSON.stringify(this.rounds, null, 4));
     }
     get duration() { return 0 }
     get totalHoldingTime() { return 0 }
@@ -107,7 +151,7 @@ class Round {
         this.countdownDuration = countdownDuration
     }
     run() {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
             console.log('ROUND ' + (this.number))
             const interval = 1000
             const start = Date.now()
@@ -120,7 +164,7 @@ class Round {
                     resolve(true)
                 } else {
                     this.elapsedSec = Math.floor((Date.now() - start) / 1000)
-                    printElapsedTime(this.elapsedSec)
+                    renderElapsedTime(this.elapsedSec)
                     this.beepCountdown()
         
                     if (Date.now() >= end) {
