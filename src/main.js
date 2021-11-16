@@ -1,4 +1,4 @@
-const ROUND_DURATION = 5
+const ROUND_DURATION = 7
 const NUMBER_OF_ROUNDS = 5
 const COUNTDOWN_DURATION = 3
 const VOLUME = 0.01
@@ -141,6 +141,7 @@ class Round {
     record() {
         if (this.recordSec == null) {
             this.recordSec = this.elapsedSec
+            BEEP_LONG.play()
             console.log('round: ', this.number, 'hold: ', this.recordSec)
         }
     }
