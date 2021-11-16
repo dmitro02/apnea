@@ -116,6 +116,7 @@ class Round {
             
             const step = () => {
                 if (session.willBeStopped) {
+                    this.record()
                     resolve(true)
                 } else {
                     this.elapsedSec = Math.floor((Date.now() - start) / 1000)
