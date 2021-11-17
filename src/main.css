@@ -1,9 +1,52 @@
-body {
-    background-color: black;
+html, body {
+    height: 100%;
 }
 
-.time-indicator {
+body {
+    background-color: black;
     color: white;
-    font-size: 20px;
-    padding: 10px;
+    font-family: sans-serif;
+    margin: 0;
+}
+
+.main-box {
+    box-sizing: border-box;
+    text-align: center;
+    font-family: sans-serif;
+    padding: 2rem 0;
+    width: min-content;
+    margin: auto;
+    /* border: 1px solid; */
+    height: 100%;
+}
+
+.round-indicator {
+    font-size: 5rem;
+}
+
+.time-indicator {    
+    font-size: 9rem;
+}
+
+.session-results {
+    margin-top: 2rem;
+    font-size: 3rem;
+    text-align: left;
+    column-count: 2;
+    column-gap: 20px;
+}
+
+button {
+    width: 10rem;
+    height: 5rem;
+    cursor: pointer;
+    font-size: 1.3rem;
+    text-transform: uppercase;
+    font-weight: bold;
+    border-radius: 3rem;
+}
+
+.session-btns {
+    display: flex;
+    justify-content: space-evenly;
 }

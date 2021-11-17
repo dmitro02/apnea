@@ -9,11 +9,15 @@
     <script src='main.js'></script>
 </head>
 <body>
-    <div class="time-indicator">00:00</div>
-    <button class="start-btn">start</button>
-    <button class="record-btn" disabled>record</button>
-    <script>
-        configureEventListeners()
-    </script>
+    <div class="main-box">
+        <div class="round-indicator"></div>
+        <div class="time-indicator"></div>
+        <div class="session-btns">
+            <button class="start-btn"></button>
+            <button class="record-btn"></button>
+        </div>
+        <div class="session-results"></div>
+    </div>
+    <script>init()</script>
 </body>
 </html>
