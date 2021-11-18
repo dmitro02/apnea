@@ -18,9 +18,7 @@ let session
 
 const startSession = () => {
     if (!session || !session.isRunning) {
-        renderStopBtn()
-        renderTimeIndicator()
-        renderRoundResult()
+        setState(states.SESION_STARTED)
         BEEP_SHORT.play()
 
         session = new Session(
@@ -31,7 +29,7 @@ const startSession = () => {
         session
             .run()
             .then(() => {
-                renderStartBtn()        
+                setState(states.SESION_ENDED)        
                 console.log(JSON.stringify(getSessionStats()));
             })
     }
@@ -49,17 +47,13 @@ const getSessionStats = () => {
     return { maxHold, avrgHold }
 }
 
-const logElapsedTime = (elapsedSec) => {
-    console.log(formatTime(elapsedSec))
-}
-
 const formatTime = (elapsedSec) => {
     let min = Math.floor(elapsedSec / 60)
     let sec = elapsedSec - min * 60
-    return formatValue(min) + ':' + formatValue(sec)
+    return formatTimeValue(min) + ':' + formatTimeValue(sec)
 }
 
-const formatValue = (value) => {
+const formatTimeValue = (value) => {
     return value < 10 ? '0' + value : value
 }
 
@@ -88,6 +82,10 @@ const handleClickOnStopBtn = () => {
 
 const handleClickOnRecordBtn = () => {
     recordHoldTime()
+}
+
+const handleClickOnResetBtn = () => {
+    reset()
 }
 
 class Session {
@@ -138,7 +136,7 @@ class Round {
             const end = start + this.duration * 1000
             let expected = start + interval
 
-            switchRecordBtn()
+            setState(states.ROUND_STARTED)
             
             const step = () => {
                 if (session.willBeStopped) {
@@ -168,7 +166,7 @@ class Round {
     record() {
         if (this.recordSec == null) {
             this.recordSec = this.elapsedSec
-            switchRecordBtn()
+            setState(states.ROUND_RECORDED)
             BEEP_SHORT.play()
             renderRoundResult(this.number, this.recordSec)
         }
@@ -183,21 +181,21 @@ class Round {
     }
 }
 
-const getStartBtn = () => document.querySelector('.start-btn')
-const getRecordBtn = () => document.querySelector('.record-btn')
-const getTimeIndicator = () => document.querySelector('.time-indicator')
-const getRoundIndicator = () => document.querySelector('.round-indicator')
+const getStartBtn = () => document.querySelector('.start-record-btn')
+const getStopBtn = () => document.querySelector('.stop-reset-btn')
+const getTimeIndicatorEl = () => document.querySelector('.time-indicator')
+const getRoundIndicatorEl = () => document.querySelector('.round-indicator')
 const getSessionResultsEl = () => document.querySelector('.session-results')
 
 const renderTimeIndicator = (elapsedSec = 0) => {
     const timeLeftSec = ROUND_DURATION === elapsedSec 
         ? ROUND_DURATION
         : ROUND_DURATION - elapsedSec
-    getTimeIndicator().textContent = formatTime(timeLeftSec)
+    getTimeIndicatorEl().textContent = formatTime(timeLeftSec)
 }
 
-const renderRoundIndicator = (numberOfRounds = '-', currentRoundNumber = '-') => {
-    getRoundIndicator().textContent = currentRoundNumber + '/' + numberOfRounds
+const renderRoundIndicator = (numberOfRounds = NUMBER_OF_ROUNDS, currentRoundNumber = '-') => {
+    getRoundIndicatorEl().textContent = currentRoundNumber + '/' + numberOfRounds
 }
 
 const renderRoundResult = (roundNumber, recordSec) => {
@@ -210,44 +208,84 @@ const renderRoundResult = (roundNumber, recordSec) => {
     getSessionResultsEl().appendChild(recordEl)
 }
 
-const renderStopBtn = () => {
-    const startBtn = getStartBtn()
-    startBtn.removeEventListener('click', handleClickOnStartBtn)
-    startBtn.addEventListener('click', handleClickOnStopBtn)
-    startBtn.textContent = 'stop'
-}
-
 const renderStartBtn = () => {
-    const startBtn = getStartBtn()
-    startBtn.removeEventListener('click', handleClickOnStopBtn)
-    startBtn.addEventListener('click', handleClickOnStartBtn)
-    startBtn.textContent = 'start'
+    const btn = getStartBtn()
+    btn.removeEventListener('click', handleClickOnRecordBtn)
+    btn.addEventListener('click', handleClickOnStartBtn)
+    btn.textContent = 'start'
+    btn.disabled = false
 }
 
-const switchRecordBtn = (isDisabled) => {
-    const btn = getRecordBtn()
-    btn.disabled = isDisabled || !btn.disabled
-    btn.disabled
-        ? btn.removeEventListener('click', handleClickOnRecordBtn)
-        : btn.addEventListener('click', handleClickOnRecordBtn)
-}
-
-const renderRecordButton = () => {
-    const btn = getRecordBtn()
+const renderRecordBtn = (isDisabled) => {
+    const btn = getStartBtn()
+    btn.removeEventListener('click', handleClickOnStartBtn)
+    btn.addEventListener('click', handleClickOnRecordBtn)
     btn.textContent = 'record'
-    switchRecordBtn(true)
+    btn.disabled = isDisabled
 }
 
-const init = () => {
-    renderRoundIndicator(NUMBER_OF_ROUNDS)
-    renderTimeIndicator()
-    renderStartBtn()
-    renderRecordButton()
-    window.addEventListener('keyup', handlePressSpaceBtn)
+const renderStopBtn = (isDisabled) => {
+    const btn = getStopBtn()
+    btn.removeEventListener('click', handleClickOnResetBtn)
+    btn.addEventListener('click', handleClickOnStopBtn)
+    btn.textContent = 'stop'
+    btn.disabled = isDisabled
+}
+
+const renderResetBtn = () => {
+    const btn = getStopBtn()
+    btn.removeEventListener('click', handleClickOnStopBtn)
+    btn.addEventListener('click', handleClickOnResetBtn)
+    btn.textContent = 'reset'
 }
 
 const reset = () => {
-    renderRoundIndicator(NUMBER_OF_ROUNDS)
-    renderTimeIndicator()
-    renderRoundResult()
+    setState(states.INITIAL)
+}
+
+const init = () => {
+    reset()
+    window.addEventListener('keyup', handlePressSpaceBtn)
+}
+
+const createEnum = (values) => {
+    return Object.freeze(
+        values.reduce((obj, val) => 
+            ({ ...obj, [val]:val }), {})
+    )
+}
+
+const states = createEnum([
+    'INITIAL', 
+    'SESION_STARTED',
+    'ROUND_STARTED',
+    'ROUND_RECORDED',
+    'SESION_ENDED'
+])
+
+const setState = (state) => {
+    switch (state) {
+        case states.INITIAL:
+            renderRoundIndicator()
+            renderTimeIndicator()
+            renderRoundResult()
+            renderStartBtn()
+            renderStopBtn(true)
+            break
+        case states.SESION_STARTED:
+            renderRoundResult()
+            renderRecordBtn()
+            renderStopBtn()
+            break
+        case states.ROUND_STARTED:
+            renderTimeIndicator()
+            renderRecordBtn()
+            break            
+        case states.ROUND_RECORDED:
+            renderRecordBtn(true)
+            break
+        case states.SESION_ENDED:
+            renderStartBtn()
+            renderResetBtn()
+    }
 }
