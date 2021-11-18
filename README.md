@@ -4,4 +4,5 @@
 https://youtu.be/eXBZUee4EpY?list=PLVDEz46YIYvoWZJeYq39BlDhDblFjkQva&t=224
 
 ### To-Do
-- change btn Start to Record if session is running
+- 2 column round results
+- settings

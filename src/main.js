@@ -1,6 +1,6 @@
-const ROUND_DURATION = 3
-const NUMBER_OF_ROUNDS = 6
-const COUNTDOWN_DURATION = 0
+const ROUND_DURATION = 10
+const NUMBER_OF_ROUNDS = 3
+const COUNTDOWN_DURATION = 3
 const VOLUME = 0.01
 
 const getBeep = (duration) => {
@@ -19,7 +19,8 @@ let session
 const startSession = () => {
     if (!session || !session.isRunning) {
         renderStopBtn()
-        getSessionResultsEl().innerHTML = ''
+        renderTimeIndicator()
+        renderRoundResult()
         BEEP_SHORT.play()
 
         session = new Session(
@@ -31,8 +32,6 @@ const startSession = () => {
             .run()
             .then(() => {
                 renderStartBtn()        
-                renderTimeIndicator()
-                renderRoundIndicator(NUMBER_OF_ROUNDS)
                 console.log(JSON.stringify(getSessionStats()));
             })
     }
@@ -44,11 +43,10 @@ const stopSession = () => {
 
 const getSessionStats = () => {
     const records = session.rounds.map((r) => r.recordSec )
-    const numberOfRounds = records.length 
     const totalHold = records.reduce((p, c) => p + c, 0)
     const maxHold = Math.max(...records)
-    const avrgHold = Math.round(totalHold / numberOfRounds)
-    return { maxHold, avrgHold, numberOfRounds }
+    const avrgHold = Math.round(totalHold / records.length)
+    return { maxHold, avrgHold }
 }
 
 const logElapsedTime = (elapsedSec) => {
@@ -192,7 +190,10 @@ const getRoundIndicator = () => document.querySelector('.round-indicator')
 const getSessionResultsEl = () => document.querySelector('.session-results')
 
 const renderTimeIndicator = (elapsedSec = 0) => {
-    getTimeIndicator().textContent = formatTime(elapsedSec)
+    const timeLeftSec = ROUND_DURATION === elapsedSec 
+        ? ROUND_DURATION
+        : ROUND_DURATION - elapsedSec
+    getTimeIndicator().textContent = formatTime(timeLeftSec)
 }
 
 const renderRoundIndicator = (numberOfRounds = '-', currentRoundNumber = '-') => {
@@ -200,6 +201,10 @@ const renderRoundIndicator = (numberOfRounds = '-', currentRoundNumber = '-') =>
 }
 
 const renderRoundResult = (roundNumber, recordSec) => {
+    if (!roundNumber && !recordSec) {
+        getSessionResultsEl().innerHTML = '' 
+        return
+    }
     const recordEl = document.createElement('div')
     recordEl.innerText = roundNumber + '. ' + formatTime(recordSec)
     getSessionResultsEl().appendChild(recordEl)
@@ -239,4 +244,10 @@ const init = () => {
     renderStartBtn()
     renderRecordButton()
     window.addEventListener('keyup', handlePressSpaceBtn)
+}
+
+const reset = () => {
+    renderRoundIndicator(NUMBER_OF_ROUNDS)
+    renderTimeIndicator()
+    renderRoundResult()
 }
