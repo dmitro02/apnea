@@ -1,5 +1,5 @@
 const ROUND_DURATION = 2
-const NUMBER_OF_ROUNDS = 12
+const NUMBER_OF_ROUNDS = 7
 const COUNTDOWN_DURATION = 3
 const VOLUME = 0.01
 
@@ -210,7 +210,8 @@ const renderRoundIndicator = (numberOfRounds = NUMBER_OF_ROUNDS, currentRoundNum
 
 const renderSessionResults = (roundNumber, recordSec) => {
     if (!roundNumber && !recordSec) {
-        getSessionResultsEl().innerHTML = '' 
+        getSessionResultsLeftEl().innerHTML = '' 
+        getSessionResultsRightEl().innerHTML = ''
         return
     }
     renderRoundRecord(roundNumber, recordSec)
