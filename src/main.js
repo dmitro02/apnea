@@ -1,5 +1,5 @@
-const ROUND_DURATION = 10
-const NUMBER_OF_ROUNDS = 3
+const ROUND_DURATION = 2
+const NUMBER_OF_ROUNDS = 12
 const COUNTDOWN_DURATION = 3
 const VOLUME = 0.01
 
@@ -168,7 +168,7 @@ class Round {
             this.recordSec = this.elapsedSec
             setState(states.ROUND_RECORDED)
             BEEP_SHORT.play()
-            renderRoundResult(this.number, this.recordSec)
+            renderSessionResults(this.number, this.recordSec)
         }
     }
     beepCountdown() {
@@ -181,11 +181,21 @@ class Round {
     }
 }
 
-const getStartBtn = () => document.querySelector('.start-record-btn')
-const getStopBtn = () => document.querySelector('.stop-reset-btn')
-const getTimeIndicatorEl = () => document.querySelector('.time-indicator')
-const getRoundIndicatorEl = () => document.querySelector('.round-indicator')
-const getSessionResultsEl = () => document.querySelector('.session-results')
+const getElement = (selector, parent) => {
+    parent = parent || document
+    return parent.querySelector(selector)
+}
+
+const getStartBtn = () => getElement('.start-record-btn')
+const getStopBtn = () => getElement('.stop-reset-btn')
+const getTimeIndicatorEl = () => getElement('.time-indicator')
+const getRoundIndicatorEl = () => getElement('.round-indicator')
+const getSessionResultsEl = () => getElement('.session-results')
+const getSessionResultsLeftEl = () => getElement('.session-results-left')
+const getSessionResultsRightEl = () => getElement('.session-results-right')
+const getRoundRecordTemplate = () => getElement('#round-record')
+const getRoundNumberEl = (el) => getElement('.round-number', el) 
+const getRoundResultEl = (el) => getElement('.round-result', el) 
 
 const renderTimeIndicator = (elapsedSec = 0) => {
     const timeLeftSec = ROUND_DURATION === elapsedSec 
@@ -198,14 +208,12 @@ const renderRoundIndicator = (numberOfRounds = NUMBER_OF_ROUNDS, currentRoundNum
     getRoundIndicatorEl().textContent = currentRoundNumber + '/' + numberOfRounds
 }
 
-const renderRoundResult = (roundNumber, recordSec) => {
+const renderSessionResults = (roundNumber, recordSec) => {
     if (!roundNumber && !recordSec) {
         getSessionResultsEl().innerHTML = '' 
         return
     }
-    const recordEl = document.createElement('div')
-    recordEl.innerText = roundNumber + '. ' + formatTime(recordSec)
-    getSessionResultsEl().appendChild(recordEl)
+    renderRoundRecord(roundNumber, recordSec)
 }
 
 const renderStartBtn = () => {
@@ -239,6 +247,15 @@ const renderResetBtn = () => {
     btn.textContent = 'reset'
 }
 
+const renderRoundRecord = (roundNumber, recordSec) => {
+    const clone = getRoundRecordTemplate().content.cloneNode(true)
+    getRoundNumberEl(clone).textContent = roundNumber + '.'
+    getRoundResultEl(clone).textContent = formatTime(recordSec)
+    roundNumber <= Math.ceil(NUMBER_OF_ROUNDS / 2)
+        ? getSessionResultsLeftEl().appendChild(clone)
+        : getSessionResultsRightEl().appendChild(clone)
+}
+
 const reset = () => {
     setState(states.INITIAL)
 }
@@ -268,12 +285,12 @@ const setState = (state) => {
         case states.INITIAL:
             renderRoundIndicator()
             renderTimeIndicator()
-            renderRoundResult()
+            renderSessionResults()
             renderStartBtn()
             renderStopBtn(true)
             break
         case states.SESION_STARTED:
-            renderRoundResult()
+            renderSessionResults()
             renderRecordBtn()
             renderStopBtn()
             break

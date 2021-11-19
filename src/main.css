@@ -29,7 +29,8 @@ body {
 }
 
 .session-results {
-    margin-top: 2rem;
+    max-width: fit-content;
+    margin: 2rem 0 0 1.2rem;
     font-size: 2rem;
     text-align: left;
     column-count: 2;
@@ -49,4 +50,15 @@ button {
 .session-btns {
     display: flex;
     justify-content: space-evenly;
+}
+
+.round-record {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.round-number {
+    width: 3rem;
+    margin-right: 0.6rem;
+    text-align: right;
 }
