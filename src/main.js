@@ -8,7 +8,6 @@ class DomRegistry {
     get stopBtn() { return this.getElement('.stop-reset-btn') }
     get timeIndicator() { return this.getElement('.time-indicator') }
     get roundIndicator() { return this.getElement('.round-indicator') }
-    get sessionResults() { return this.getElement('.session-results') }
     get sessionResultsLeft() { return this.getElement('.session-results-left') }
     get sessionResultsRight() { return this.getElement('.session-results-right') }
     get roundRecordTemplate() { return this.getElement('#round-record') }
@@ -199,36 +198,21 @@ class Round {
     }
 }
 
-const getElement = (selector, parent) => {
-    return (parent || document).querySelector(selector)
-}
-
-const getStartBtn = () => getElement('.start-record-btn')
-const getStopBtn = () => getElement('.stop-reset-btn')
-const getTimeIndicatorEl = () => getElement('.time-indicator')
-const getRoundIndicatorEl = () => getElement('.round-indicator')
-const getSessionResultsEl = () => getElement('.session-results')
-const getSessionResultsLeftEl = () => getElement('.session-results-left')
-const getSessionResultsRightEl = () => getElement('.session-results-right')
-const getRoundRecordTemplate = () => getElement('#round-record')
-const getRoundNumberEl = (el) => getElement('.round-number', el) 
-const getRoundResultEl = (el) => getElement('.round-result', el) 
-
 const renderTimeIndicator = (elapsedSec = 0) => {
     const timeLeftSec = ROUND_DURATION === elapsedSec 
         ? ROUND_DURATION
         : ROUND_DURATION - elapsedSec
-    getTimeIndicatorEl().textContent = formatTime(timeLeftSec)
+    dom.timeIndicator.textContent = formatTime(timeLeftSec)
 }
 
 const renderRoundIndicator = (numberOfRounds = NUMBER_OF_ROUNDS, currentRoundNumber = '-') => {
-    getRoundIndicatorEl().textContent = currentRoundNumber + '/' + numberOfRounds
+    dom.roundIndicator.textContent = currentRoundNumber + '/' + numberOfRounds
 }
 
 const renderSessionResults = (roundNumber, recordSec) => {
     if (!roundNumber && !recordSec) {
-        getSessionResultsLeftEl().innerHTML = '' 
-        getSessionResultsRightEl().innerHTML = ''
+        dom.sessionResultsLeft.innerHTML = '' 
+        dom.sessionResultsRight.innerHTML = ''
         return
     }
     renderRoundRecord(roundNumber, recordSec)
@@ -251,7 +235,7 @@ const renderRecordBtn = (isDisabled) => {
 }
 
 const renderStopBtn = (isDisabled) => {
-    const btn = getStopBtn()
+    const btn = dom.stopBtn
     btn.removeEventListener('click', handleClickOnResetBtn)
     btn.addEventListener('click', handleClickOnStopBtn)
     btn.textContent = 'stop'
@@ -259,19 +243,19 @@ const renderStopBtn = (isDisabled) => {
 }
 
 const renderResetBtn = () => {
-    const btn = getStopBtn()
+    const btn = dom.stopBtn
     btn.removeEventListener('click', handleClickOnStopBtn)
     btn.addEventListener('click', handleClickOnResetBtn)
     btn.textContent = 'reset'
 }
 
 const renderRoundRecord = (roundNumber, recordSec) => {
-    const clone = getRoundRecordTemplate().content.cloneNode(true)
-    getRoundNumberEl(clone).textContent = roundNumber + '.'
-    getRoundResultEl(clone).textContent = formatTime(recordSec)
+    const clone = dom.roundRecordTemplate.content.cloneNode(true)
+    dom.roundNumber(clone).textContent = roundNumber + '.'
+    dom.roundResult(clone).textContent = formatTime(recordSec)
     roundNumber <= Math.ceil(NUMBER_OF_ROUNDS / 2)
-        ? getSessionResultsLeftEl().appendChild(clone)
-        : getSessionResultsRightEl().appendChild(clone)
+        ? dom.sessionResultsLeft.appendChild(clone)
+        : dom.sessionResultsRight.appendChild(clone)
 }
 
 const reset = () => {
