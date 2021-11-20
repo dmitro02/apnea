@@ -1,7 +1,25 @@
-const ROUND_DURATION = 2
-const NUMBER_OF_ROUNDS = 7
+const ROUND_DURATION = 5
+const NUMBER_OF_ROUNDS = 5
 const COUNTDOWN_DURATION = 3
 const VOLUME = 0.01
+
+class DomRegistry {
+    get startBtn() { return this.getElement('.start-record-btn') }
+    get stopBtn() { return this.getElement('.stop-reset-btn') }
+    get timeIndicator() { return this.getElement('.time-indicator') }
+    get roundIndicator() { return this.getElement('.round-indicator') }
+    get sessionResults() { return this.getElement('.session-results') }
+    get sessionResultsLeft() { return this.getElement('.session-results-left') }
+    get sessionResultsRight() { return this.getElement('.session-results-right') }
+    get roundRecordTemplate() { return this.getElement('#round-record') }
+    roundNumber(el) { return this.getElement('.round-number', el) }
+    roundResult(el) { return this.getElement('.round-result', el) } 
+    getElement(selector, parent) {
+        return (parent || document).querySelector(selector)
+    }
+}
+
+const dom = new DomRegistry()
 
 const getBeep = (duration) => {
     const audioStr = 'data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU'
@@ -30,21 +48,16 @@ const startSession = () => {
             .run()
             .then(() => {
                 setState(states.SESION_ENDED)        
-                console.log(JSON.stringify(getSessionStats()));
+                console.log(
+                    'max:', session.maxHoldingTime, 
+                    'avrg:', session.avrgHoldingTime
+                )
             })
     }
 }
 
 const stopSession = () => {
     session.willBeStopped = true
-}
-
-const getSessionStats = () => {
-    const records = session.rounds.map((r) => r.recordSec )
-    const totalHold = records.reduce((p, c) => p + c, 0)
-    const maxHold = Math.max(...records)
-    const avrgHold = Math.round(totalHold / records.length)
-    return { maxHold, avrgHold }
 }
 
 const formatTime = (elapsedSec) => {
@@ -112,10 +125,15 @@ class Session {
         }
         this.isRunning = false
     }
-    get duration() { return 0 }
-    get totalHoldingTime() { return 0 }
-    get maxHoldingTime() { return 0 }
-    get holdingPercentage() { return 0 }
+
+    get records() { return session.rounds.map((r) => r.recordSec) }
+    get avrgHoldingTime() { 
+        const total = this.records.reduce((p, c) => p + c, 0)
+        return Math.round(total / this.records.length)
+    }
+    get maxHoldingTime() { 
+        return Math.max(...this.records)
+    }
 }
 
 class Round {
@@ -182,8 +200,7 @@ class Round {
 }
 
 const getElement = (selector, parent) => {
-    parent = parent || document
-    return parent.querySelector(selector)
+    return (parent || document).querySelector(selector)
 }
 
 const getStartBtn = () => getElement('.start-record-btn')
@@ -218,7 +235,7 @@ const renderSessionResults = (roundNumber, recordSec) => {
 }
 
 const renderStartBtn = () => {
-    const btn = getStartBtn()
+    const btn = dom.startBtn
     btn.removeEventListener('click', handleClickOnRecordBtn)
     btn.addEventListener('click', handleClickOnStartBtn)
     btn.textContent = 'start'
@@ -226,7 +243,7 @@ const renderStartBtn = () => {
 }
 
 const renderRecordBtn = (isDisabled) => {
-    const btn = getStartBtn()
+    const btn = dom.startBtn
     btn.removeEventListener('click', handleClickOnStartBtn)
     btn.addEventListener('click', handleClickOnRecordBtn)
     btn.textContent = 'record'
