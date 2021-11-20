@@ -218,9 +218,7 @@ const handlePressSpaceBtn = (e) => {
 }
 
 const handleClickOnStartBtn = () => session.start()
-
 const handleClickOnStopBtn = () => session.stop()
-
 const handleClickOnRecordBtn = () => session.record()
 
 const renderTimeIndicator = (elapsedSec = 0) => {
