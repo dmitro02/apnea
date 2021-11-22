@@ -79,7 +79,7 @@ class Session {
             )
 
             renderRoundIndicator(this.numberOfRounds, i)
-            setState(states.ROUND_STARTED)
+            state.setRoundStarted()
 
             const isInterrupted = await this.#currentRound.start()
             this.record(i)
@@ -90,7 +90,7 @@ class Session {
     stop() { this.#currentRound.stop() }
     record() {
         if (this.#isCurrentRoundRecorded) return
-        setState(states.ROUND_RECORDED)
+        state.setRoundRecorded()
         this.#isCurrentRoundRecorded = true
         BEEP_SHORT.play()
         this.#records.push(this.#currentRound.elapsed)
@@ -100,14 +100,14 @@ class Session {
         )
     }
     #onStart() {
-        setState(states.SESION_STARTED)
+        state.setSesionStarted()
         BEEP_SHORT.play()
         this.isRunning = true
         this.#records = []
     }
     #onStop() {
         this.isRunning = false
-        setState(states.SESION_ENDED)        
+        state.setSessionEnded()       
         console.log(
             'max:', this.maxHoldingTime, 
             'avrg:', this.avrgHoldingTime
@@ -137,6 +137,56 @@ class DomRegistry {
     }
 }
 
+class StateManager {
+    #states = this.#createEnum([
+        'INITIAL', 
+        'SESION_STARTED',
+        'ROUND_STARTED',
+        'ROUND_RECORDED',
+        'SESION_ENDED'
+    ])
+
+    setInitial() { this.#setState(this.#states.INITIAL) }
+    setSesionStarted() { this.#setState(this.#states.SESION_STARTED) }
+    setRoundStarted() { this.#setState(this.#states.ROUND_STARTED) }
+    setRoundRecorded() { this.#setState(this.#states.ROUND_RECORDED) }
+    setSessionEnded() { this.#setState(this.#states.SESION_ENDED) }
+    
+    #setState(state) {
+        switch (state) {
+            case this.#states.INITIAL:
+                renderRoundIndicator()
+                renderTimeIndicator()
+                renderSessionResults()
+                renderStartBtn()
+                renderStopBtn(true)
+                break
+            case this.#states.SESION_STARTED:
+                renderSessionResults()
+                renderRecordBtn()
+                renderStopBtn()
+                break
+            case this.#states.ROUND_STARTED:
+                renderTimeIndicator()
+                renderRecordBtn()
+                break            
+            case this.#states.ROUND_RECORDED:
+                renderRecordBtn(true)
+                break
+            case this.#states.SESION_ENDED:
+                renderStartBtn()
+                renderResetBtn()
+        }
+    }
+
+    #createEnum(values) {
+        return Object.freeze(
+            values.reduce((obj, val) => 
+                ({ ...obj, [val]:val }), {})
+        )
+    }
+}
+
 const dom = new DomRegistry()
 
 const session = new Session(
@@ -145,47 +195,7 @@ const session = new Session(
     COUNTDOWN_DURATION
 )
 
-const createEnum = (values) => {
-    return Object.freeze(
-        values.reduce((obj, val) => 
-            ({ ...obj, [val]:val }), {})
-    )
-}
-
-const states = createEnum([
-    'INITIAL', 
-    'SESION_STARTED',
-    'ROUND_STARTED',
-    'ROUND_RECORDED',
-    'SESION_ENDED'
-])
-
-const setState = (state) => {
-    switch (state) {
-        case states.INITIAL:
-            renderRoundIndicator()
-            renderTimeIndicator()
-            renderSessionResults()
-            renderStartBtn()
-            renderStopBtn(true)
-            break
-        case states.SESION_STARTED:
-            renderSessionResults()
-            renderRecordBtn()
-            renderStopBtn()
-            break
-        case states.ROUND_STARTED:
-            renderTimeIndicator()
-            renderRecordBtn()
-            break            
-        case states.ROUND_RECORDED:
-            renderRecordBtn(true)
-            break
-        case states.SESION_ENDED:
-            renderStartBtn()
-            renderResetBtn()
-    }
-}
+const state = new StateManager()
 
 const getBeep = (duration) => {
     const audioStr = 'data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU'
@@ -284,7 +294,7 @@ const renderRoundRecord = (roundNumber, recordSec) => {
         : dom.sessionResultsRight.appendChild(clone)
 }
 
-const reset = () => setState(states.INITIAL)
+const reset = () => state.setInitial()
 
 const init = () => {
     reset()
