@@ -1,6 +1,6 @@
-const ROUND_DURATION = 5
+const ROUND_DURATION = 10
 const NUMBER_OF_ROUNDS = 5
-const COUNTDOWN_DURATION = 3
+const COUNTDOWN_DURATION = 9
 const VOLUME = 0.01
 
 class Timer {
@@ -45,9 +45,9 @@ class Timer {
     #beepCountdown() {
         const timeLeft = this.duration - this.elapsed
         if (timeLeft === 0) {
-            BEEP_LONG.play() 
+            sound.beepLong.play() 
         } else if (timeLeft > 0 && timeLeft < this.countdownDuration) {
-            BEEP_SHORT.play()
+            sound.beepShort.play()
         }
     }
 }
@@ -59,10 +59,11 @@ class Session {
     #currentRoundNumber
     #isCurrentRoundRecorded
     constructor(numberOfRounds, roundDuration, countdownDuration) {
-        this.numberOfRounds = numberOfRounds
-        this.roundDuration = roundDuration
-        this.countdownDuration = countdownDuration
+        this.numberOfRounds = numberOfRounds || NUMBER_OF_ROUNDS
+        this.roundDuration = roundDuration || ROUND_DURATION
+        this.countdownDuration = countdownDuration || COUNTDOWN_DURATION
     }
+
     async start() {
         if (this.isRunning) return
         
@@ -92,7 +93,7 @@ class Session {
         if (this.#isCurrentRoundRecorded) return
         state.setRoundRecorded()
         this.#isCurrentRoundRecorded = true
-        BEEP_SHORT.play()
+        sound.beepShort.play()
         this.#records.push(this.#currentRound.elapsed)
         ui.renderSessionResults(
             this.#currentRoundNumber, 
@@ -101,7 +102,7 @@ class Session {
     }
     #onStart() {
         state.setSesionStarted()
-        BEEP_SHORT.play()
+        sound.beepShort.play()
         this.isRunning = true
         this.#records = []
     }
@@ -275,29 +276,34 @@ class StateManager {
     }
 }
 
-const session = new Session(
-    NUMBER_OF_ROUNDS, 
-    ROUND_DURATION, 
-    COUNTDOWN_DURATION
-)
+class Sound {
+    #sounds = []
 
+    constructor(volume) {
+        console.log('Sound constructor') 
+        this.defaultVolume = volume || VOLUME
+
+        this.beepShort = this.#getBeep(1000)
+        this.beepLong = this.#getBeep(4000)
+    }
+
+    #getBeep = (duration) => {
+        const audioStr = 'data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU'
+                       + Array(duration).join('123')  
+        const audio = new Audio(audioStr) 
+        audio.volume = this.defaultVolume
+        this.#sounds.push(audio)
+        return audio
+    }
+
+    setVolume(volume) {
+        this.#sounds.forEach((s) => s.volume = volume)
+    }
+}
+
+const session = new Session()
 const state = new StateManager()
-
+const sound = new Sound()
 const ui = new UI()
 
-class Sound {
-
-}
-
-const getBeep = (duration) => {
-    const audioStr = 'data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU'
-                   + Array(duration).join('123')  
-    const audio = new Audio(audioStr)            
-    audio.volume = VOLUME
-    return audio
-}
-
-const BEEP_SHORT = getBeep(1000)
-const BEEP_LONG = getBeep(4000)
-
-
+ui.init()
