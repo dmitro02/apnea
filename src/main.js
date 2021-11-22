@@ -74,11 +74,11 @@ class Session {
 
             this.#currentRound = new Timer(
                 this.roundDuration,
-                renderTimeIndicator, 
+                ui.renderTimeIndicator, 
                 this.countdownDuration
             )
 
-            renderRoundIndicator(this.numberOfRounds, i)
+            ui.renderRoundIndicator(this.numberOfRounds, i)
             state.setRoundStarted()
 
             const isInterrupted = await this.#currentRound.start()
@@ -94,7 +94,7 @@ class Session {
         this.#isCurrentRoundRecorded = true
         BEEP_SHORT.play()
         this.#records.push(this.#currentRound.elapsed)
-        renderSessionResults(
+        ui.renderSessionResults(
             this.#currentRoundNumber, 
             this.#currentRound.elapsed
         )
@@ -122,19 +122,107 @@ class Session {
     }
 }
 
-class DomRegistry {
-    get startBtn() { return this.getElement('.start-record-btn') }
-    get stopBtn() { return this.getElement('.stop-reset-btn') }
-    get timeIndicator() { return this.getElement('.time-indicator') }
-    get roundIndicator() { return this.getElement('.round-indicator') }
-    get sessionResultsLeft() { return this.getElement('.session-results-left') }
-    get sessionResultsRight() { return this.getElement('.session-results-right') }
-    get roundRecordTemplate() { return this.getElement('#round-record') }
-    roundNumber(el) { return this.getElement('.round-number', el) }
-    roundResult(el) { return this.getElement('.round-result', el) } 
-    getElement(selector, parent) {
+class UI {
+    renderTimeIndicator = (elapsedSec = 0) => {
+        const timeLeftSec = session.roundDuration === elapsedSec 
+            ? session.roundDuration
+            : session.roundDuration - elapsedSec
+        this.timeIndicator.textContent = this.#formatTime(timeLeftSec)
+    }
+    
+    renderRoundIndicator = (currentRoundNumber = '-') => {
+        this.roundIndicator.textContent = 
+            currentRoundNumber + '/' + session.numberOfRounds
+    }
+    
+    renderSessionResults = (roundNumber, recordSec) => {
+        if (!roundNumber && !recordSec) {
+            this.sessionResultsLeft.innerHTML = '' 
+            this.sessionResultsRight.innerHTML = ''
+            return
+        }
+        this.renderRoundRecord(roundNumber, recordSec)
+    }
+    
+    renderStartBtn = () => {
+        const btn = this.startBtn
+        btn.removeEventListener('click', this.handleClickOnRecordBtn)
+        btn.addEventListener('click', this.handleClickOnStartBtn)
+        btn.textContent = 'start'
+        btn.disabled = false
+    }
+    
+    renderRecordBtn = (isDisabled) => {
+        const btn = this.startBtn
+        btn.removeEventListener('click', this.handleClickOnStartBtn)
+        btn.addEventListener('click', this.handleClickOnRecordBtn)
+        btn.textContent = 'record'
+        btn.disabled = isDisabled
+    }
+    
+    renderStopBtn = (isDisabled) => {
+        const btn = this.stopBtn
+        btn.removeEventListener('click', this.reset)
+        btn.addEventListener('click', this.handleClickOnStopBtn)
+        btn.textContent = 'stop'
+        btn.disabled = isDisabled
+    }
+    
+    renderResetBtn = () => {
+        const btn = this.stopBtn
+        btn.removeEventListener('click', this.handleClickOnStopBtn)
+        btn.addEventListener('click', this.reset)
+        btn.textContent = 'reset'
+    }
+    
+    renderRoundRecord = (roundNumber, recordSec) => {
+        const clone = this.roundRecordTemplate.content.cloneNode(true)
+        this.getRoundNumber(clone).textContent = roundNumber + '.'
+        this.getRoundResult(clone).textContent = this.#formatTime(recordSec)
+        roundNumber <= Math.ceil(session.numberOfRounds / 2)
+            ? this.sessionResultsLeft.appendChild(clone)
+            : this.sessionResultsRight.appendChild(clone)
+    }
+    
+    handlePressSpaceBtn = (e) => {
+        if (e.keyCode === 32) {
+            e.preventDefault()
+            session.isRunning ? session.record() : session.start()
+        }
+    }
+    
+    handleClickOnStartBtn = () => session.start()
+    handleClickOnStopBtn = () => session.stop()
+    handleClickOnRecordBtn = () => session.record()
+    reset = () => state.setInitial()
+    
+    init = () => {
+        this.reset()
+        window.addEventListener('keyup', this.handlePressSpaceBtn)
+    }
+
+    get startBtn() { return this.#getElement('.start-record-btn') }
+    get stopBtn() { return this.#getElement('.stop-reset-btn') }
+    get timeIndicator() { return this.#getElement('.time-indicator') }
+    get roundIndicator() { return this.#getElement('.round-indicator') }
+    get sessionResultsLeft() { return this.#getElement('.session-results-left') }
+    get sessionResultsRight() { return this.#getElement('.session-results-right') }
+    get roundRecordTemplate() { return this.#getElement('#round-record') }
+
+    getRoundNumber(el) { return this.#getElement('.round-number', el) }
+    getRoundResult(el) { return this.#getElement('.round-result', el) }
+
+    #getElement(selector, parent) {
         return (parent || document).querySelector(selector)
     }
+
+    #formatTime = (elapsedSec) => {
+        let min = Math.floor(elapsedSec / 60)
+        let sec = elapsedSec - min * 60
+        return this.#formatTimeValue(min) + ':' + this.#formatTimeValue(sec)
+    }
+    
+    #formatTimeValue = (val) => val < 10 ? '0' + val : val
 }
 
 class StateManager {
@@ -155,27 +243,27 @@ class StateManager {
     #setState(state) {
         switch (state) {
             case this.#states.INITIAL:
-                renderRoundIndicator()
-                renderTimeIndicator()
-                renderSessionResults()
-                renderStartBtn()
-                renderStopBtn(true)
+                ui.renderRoundIndicator()
+                ui.renderTimeIndicator()
+                ui.renderSessionResults()
+                ui.renderStartBtn()
+                ui.renderStopBtn(true)
                 break
             case this.#states.SESION_STARTED:
-                renderSessionResults()
-                renderRecordBtn()
-                renderStopBtn()
+                ui.renderSessionResults()
+                ui.renderRecordBtn()
+                ui.renderStopBtn()
                 break
             case this.#states.ROUND_STARTED:
-                renderTimeIndicator()
-                renderRecordBtn()
+                ui.renderTimeIndicator()
+                ui.renderRecordBtn()
                 break            
             case this.#states.ROUND_RECORDED:
-                renderRecordBtn(true)
+                ui.renderRecordBtn(true)
                 break
             case this.#states.SESION_ENDED:
-                renderStartBtn()
-                renderResetBtn()
+                ui.renderStartBtn()
+                ui.renderResetBtn()
         }
     }
 
@@ -187,8 +275,6 @@ class StateManager {
     }
 }
 
-const dom = new DomRegistry()
-
 const session = new Session(
     NUMBER_OF_ROUNDS, 
     ROUND_DURATION, 
@@ -196,6 +282,12 @@ const session = new Session(
 )
 
 const state = new StateManager()
+
+const ui = new UI()
+
+class Sound {
+
+}
 
 const getBeep = (duration) => {
     const audioStr = 'data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU'
@@ -208,95 +300,4 @@ const getBeep = (duration) => {
 const BEEP_SHORT = getBeep(1000)
 const BEEP_LONG = getBeep(4000)
 
-const formatTime = (elapsedSec) => {
-    let min = Math.floor(elapsedSec / 60)
-    let sec = elapsedSec - min * 60
-    return formatTimeValue(min) + ':' + formatTimeValue(sec)
-}
 
-const formatTimeValue = (val) => val < 10 ? '0' + val : val
-
-const handlePressSpaceBtn = (e) => {
-    if (e.keyCode === 32) {
-        e.preventDefault()
-        if (session && session.isRunning) {
-            session.record()
-        } else {
-            session.start()
-        }
-    }
-}
-
-const handleClickOnStartBtn = () => session.start()
-const handleClickOnStopBtn = () => session.stop()
-const handleClickOnRecordBtn = () => session.record()
-
-const renderTimeIndicator = (elapsedSec = 0) => {
-    const timeLeftSec = ROUND_DURATION === elapsedSec 
-        ? ROUND_DURATION
-        : ROUND_DURATION - elapsedSec
-    dom.timeIndicator.textContent = formatTime(timeLeftSec)
-}
-
-const renderRoundIndicator = (
-    numberOfRounds = NUMBER_OF_ROUNDS, 
-    currentRoundNumber = '-'
-) => {
-    dom.roundIndicator.textContent = currentRoundNumber + '/' + numberOfRounds
-}
-
-const renderSessionResults = (roundNumber, recordSec) => {
-    if (!roundNumber && !recordSec) {
-        dom.sessionResultsLeft.innerHTML = '' 
-        dom.sessionResultsRight.innerHTML = ''
-        return
-    }
-    renderRoundRecord(roundNumber, recordSec)
-}
-
-const renderStartBtn = () => {
-    const btn = dom.startBtn
-    btn.removeEventListener('click', handleClickOnRecordBtn)
-    btn.addEventListener('click', handleClickOnStartBtn)
-    btn.textContent = 'start'
-    btn.disabled = false
-}
-
-const renderRecordBtn = (isDisabled) => {
-    const btn = dom.startBtn
-    btn.removeEventListener('click', handleClickOnStartBtn)
-    btn.addEventListener('click', handleClickOnRecordBtn)
-    btn.textContent = 'record'
-    btn.disabled = isDisabled
-}
-
-const renderStopBtn = (isDisabled) => {
-    const btn = dom.stopBtn
-    btn.removeEventListener('click', reset)
-    btn.addEventListener('click', handleClickOnStopBtn)
-    btn.textContent = 'stop'
-    btn.disabled = isDisabled
-}
-
-const renderResetBtn = () => {
-    const btn = dom.stopBtn
-    btn.removeEventListener('click', handleClickOnStopBtn)
-    btn.addEventListener('click', reset)
-    btn.textContent = 'reset'
-}
-
-const renderRoundRecord = (roundNumber, recordSec) => {
-    const clone = dom.roundRecordTemplate.content.cloneNode(true)
-    dom.roundNumber(clone).textContent = roundNumber + '.'
-    dom.roundResult(clone).textContent = formatTime(recordSec)
-    roundNumber <= Math.ceil(NUMBER_OF_ROUNDS / 2)
-        ? dom.sessionResultsLeft.appendChild(clone)
-        : dom.sessionResultsRight.appendChild(clone)
-}
-
-const reset = () => state.setInitial()
-
-const init = () => {
-    reset()
-    window.addEventListener('keyup', handlePressSpaceBtn)
-}
