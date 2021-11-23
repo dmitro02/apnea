@@ -1,6 +1,6 @@
-const ROUND_DURATION = 10
+const ROUND_DURATION = 5
 const NUMBER_OF_ROUNDS = 5
-const COUNTDOWN_DURATION = 9
+const COUNTDOWN_DURATION = 0
 const VOLUME = 0.01
 
 class Timer {
@@ -79,8 +79,7 @@ class Session {
                 this.countdownDuration
             )
 
-            ui.renderRoundIndicator(this.numberOfRounds, i)
-            state.setRoundStarted()
+            state.setRoundStarted(this.numberOfRounds, i)
 
             const isInterrupted = await this.#currentRound.start()
             this.record(i)
@@ -91,14 +90,13 @@ class Session {
     stop() { this.#currentRound.stop() }
     record() {
         if (this.#isCurrentRoundRecorded) return
-        state.setRoundRecorded()
-        this.#isCurrentRoundRecorded = true
-        sound.beepShort.play()
-        this.#records.push(this.#currentRound.elapsed)
-        ui.renderSessionResults(
+        state.setRoundRecorded(
             this.#currentRoundNumber, 
             this.#currentRound.elapsed
         )
+        this.#isCurrentRoundRecorded = true
+        sound.beepShort.play()
+        this.#records.push(this.#currentRound.elapsed)
     }
     #onStart() {
         state.setSesionStarted()
@@ -128,90 +126,89 @@ class UI {
         const timeLeftSec = session.roundDuration === elapsedSec 
             ? session.roundDuration
             : session.roundDuration - elapsedSec
-        this.timeIndicator.textContent = this.#formatTime(timeLeftSec)
+        this.#getTimeIndicator().textContent = this.#formatTime(timeLeftSec)
     }
     
     renderRoundIndicator = (currentRoundNumber = '-') => {
-        this.roundIndicator.textContent = 
+        this.#getRoundIndicator().textContent = 
             currentRoundNumber + '/' + session.numberOfRounds
     }
     
     renderSessionResults = (roundNumber, recordSec) => {
         if (!roundNumber && !recordSec) {
-            this.sessionResultsLeft.innerHTML = '' 
-            this.sessionResultsRight.innerHTML = ''
+            this.#getSessionResultsLeft().innerHTML = '' 
+            this.#getSessionResultsRight().innerHTML = ''
             return
         }
         this.renderRoundRecord(roundNumber, recordSec)
     }
     
     renderStartBtn = () => {
-        const btn = this.startBtn
-        btn.removeEventListener('click', this.handleClickOnRecordBtn)
-        btn.addEventListener('click', this.handleClickOnStartBtn)
+        const btn = this.#getStartBtn()
+        btn.removeEventListener('click', this.#handleClickOnRecordBtn)
+        btn.addEventListener('click', this.#handleClickOnStartBtn)
         btn.textContent = 'start'
         btn.disabled = false
     }
     
     renderRecordBtn = (isDisabled) => {
-        const btn = this.startBtn
-        btn.removeEventListener('click', this.handleClickOnStartBtn)
-        btn.addEventListener('click', this.handleClickOnRecordBtn)
+        const btn = this.#getStartBtn()
+        btn.removeEventListener('click', this.#handleClickOnStartBtn)
+        btn.addEventListener('click', this.#handleClickOnRecordBtn)
         btn.textContent = 'record'
         btn.disabled = isDisabled
     }
     
     renderStopBtn = (isDisabled) => {
-        const btn = this.stopBtn
-        btn.removeEventListener('click', this.reset)
-        btn.addEventListener('click', this.handleClickOnStopBtn)
+        const btn = this.#getStopBtn()
+        btn.removeEventListener('click', this.#reset)
+        btn.addEventListener('click', this.#handleClickOnStopBtn)
         btn.textContent = 'stop'
         btn.disabled = isDisabled
     }
     
     renderResetBtn = () => {
-        const btn = this.stopBtn
-        btn.removeEventListener('click', this.handleClickOnStopBtn)
-        btn.addEventListener('click', this.reset)
+        const btn = this.#getStopBtn()
+        btn.removeEventListener('click', this.#handleClickOnStopBtn)
+        btn.addEventListener('click', this.#reset)
         btn.textContent = 'reset'
     }
     
     renderRoundRecord = (roundNumber, recordSec) => {
-        const clone = this.roundRecordTemplate.content.cloneNode(true)
-        this.getRoundNumber(clone).textContent = roundNumber + '.'
-        this.getRoundResult(clone).textContent = this.#formatTime(recordSec)
+        const clone = this.#getRoundRecordTemplate().content.cloneNode(true)
+        this.#getRoundNumber(clone).textContent = roundNumber + '.'
+        this.#getRoundResult(clone).textContent = this.#formatTime(recordSec)
         roundNumber <= Math.ceil(session.numberOfRounds / 2)
-            ? this.sessionResultsLeft.appendChild(clone)
-            : this.sessionResultsRight.appendChild(clone)
+            ? this.#getSessionResultsLeft().appendChild(clone)
+            : this.#getSessionResultsRight().appendChild(clone)
     }
     
-    handlePressSpaceBtn = (e) => {
+    #handlePressSpaceBtn = (e) => {
         if (e.keyCode === 32) {
             e.preventDefault()
             session.isRunning ? session.record() : session.start()
         }
     }
     
-    handleClickOnStartBtn = () => session.start()
-    handleClickOnStopBtn = () => session.stop()
-    handleClickOnRecordBtn = () => session.record()
-    reset = () => state.setInitial()
+    #handleClickOnStartBtn = () => session.start()
+    #handleClickOnStopBtn = () => session.stop()
+    #handleClickOnRecordBtn = () => session.record()
+    #reset = () => state.setInitial()
     
     init = () => {
-        this.reset()
-        window.addEventListener('keyup', this.handlePressSpaceBtn)
+        this.#reset()
+        window.addEventListener('keyup', this.#handlePressSpaceBtn)
     }
 
-    get startBtn() { return this.#getElement('.start-record-btn') }
-    get stopBtn() { return this.#getElement('.stop-reset-btn') }
-    get timeIndicator() { return this.#getElement('.time-indicator') }
-    get roundIndicator() { return this.#getElement('.round-indicator') }
-    get sessionResultsLeft() { return this.#getElement('.session-results-left') }
-    get sessionResultsRight() { return this.#getElement('.session-results-right') }
-    get roundRecordTemplate() { return this.#getElement('#round-record') }
-
-    getRoundNumber(el) { return this.#getElement('.round-number', el) }
-    getRoundResult(el) { return this.#getElement('.round-result', el) }
+    #getStartBtn() { return this.#getElement('.start-record-btn') }
+    #getStopBtn() { return this.#getElement('.stop-reset-btn') }
+    #getTimeIndicator() { return this.#getElement('.time-indicator') }
+    #getRoundIndicator() { return this.#getElement('.round-indicator') }
+    #getSessionResultsLeft() { return this.#getElement('.session-results-left') }
+    #getSessionResultsRight() { return this.#getElement('.session-results-right') }
+    #getRoundRecordTemplate() { return this.#getElement('#round-record') }
+    #getRoundNumber(el) { return this.#getElement('.round-number', el) }
+    #getRoundResult(el) { return this.#getElement('.round-result', el) }
 
     #getElement(selector, parent) {
         return (parent || document).querySelector(selector)
@@ -236,12 +233,26 @@ class StateManager {
     ])
 
     setInitial() { this.#setState(this.#states.INITIAL) }
+
     setSesionStarted() { this.#setState(this.#states.SESION_STARTED) }
-    setRoundStarted() { this.#setState(this.#states.ROUND_STARTED) }
-    setRoundRecorded() { this.#setState(this.#states.ROUND_RECORDED) }
+
+    setRoundStarted(numberOfRounds, roundNumber) { 
+        this.#setState(
+            this.#states.ROUND_STARTED,
+            [ numberOfRounds, roundNumber ]
+        )
+    }
+
+    setRoundRecorded(roundNumber, elapsed) { 
+        this.#setState(
+            this.#states.ROUND_RECORDED,
+            [ roundNumber, elapsed ]
+        ) 
+    }
+
     setSessionEnded() { this.#setState(this.#states.SESION_ENDED) }
     
-    #setState(state) {
+    #setState(state, params) {
         switch (state) {
             case this.#states.INITIAL:
                 ui.renderRoundIndicator()
@@ -256,11 +267,13 @@ class StateManager {
                 ui.renderStopBtn()
                 break
             case this.#states.ROUND_STARTED:
+                ui.renderRoundIndicator(...params)
                 ui.renderTimeIndicator()
                 ui.renderRecordBtn()
                 break            
             case this.#states.ROUND_RECORDED:
                 ui.renderRecordBtn(true)
+                ui.renderSessionResults(...params)
                 break
             case this.#states.SESION_ENDED:
                 ui.renderStartBtn()
@@ -280,7 +293,6 @@ class Sound {
     #sounds = []
 
     constructor(volume) {
-        console.log('Sound constructor') 
         this.defaultVolume = volume || VOLUME
 
         this.beepShort = this.#getBeep(1000)
