@@ -1,14 +1,25 @@
-const ROUND_DURATION = 5
+const ROUND_DURATION = 6
 const NUMBER_OF_ROUNDS = 5
-const COUNTDOWN_DURATION = 0
+const COUNTDOWN_DURATION = 3
 const VOLUME = 0.01
 
 class Timer {
-    constructor(duration, onInterval, countdownDuration, interval) {
+    constructor(config) {
+        const { 
+            duration, 
+            onInterval, 
+            countdownDuration = 0, 
+            interval = 1000,
+            playShortBeep,
+            playLongBeep,
+         } = config
+
         this.duration = duration
-        this.interval = interval || 1000 
-        this.countdownDuration = countdownDuration || 0
+        this.interval = interval
+        this.countdownDuration = countdownDuration
         this.onInterval = onInterval
+        this.playShortBeep = playShortBeep
+        this.playLongBeep = playLongBeep
         this.elapsed = 0
     }
     #isInterrupted = false
@@ -45,19 +56,21 @@ class Timer {
     #beepCountdown() {
         const timeLeft = this.duration - this.elapsed
         if (timeLeft === 0) {
-            sound.beepLong.play() 
+            this.playLongBeep && this.playLongBeep() 
         } else if (timeLeft > 0 && timeLeft < this.countdownDuration) {
-            sound.beepShort.play()
+            this.playShortBeep && this.playShortBeep()
         }
     }
 }
 
 class Session {
+    state = new StateManager()
     isRunning = false
     #records
     #currentRound
     #currentRoundNumber
     #isCurrentRoundRecorded
+
     constructor(numberOfRounds, roundDuration, countdownDuration) {
         this.numberOfRounds = numberOfRounds || NUMBER_OF_ROUNDS
         this.roundDuration = roundDuration || ROUND_DURATION
@@ -69,17 +82,20 @@ class Session {
         
         this.#onStart()
 
+        const timerConfig = {
+            duration: this.roundDuration, 
+            onInterval: ui.renderTimeIndicator, 
+            countdownDuration: this.countdownDuration, 
+            playShortBeep: () => sound.beepShort.play(),
+            playLongBeep: () => sound.beepLong.play(),
+        }
+
         for (let i = 1; i <= this.numberOfRounds; i++) {  
             this.#currentRoundNumber = i
             this.#isCurrentRoundRecorded = false
+            this.#currentRound = new Timer(timerConfig)
 
-            this.#currentRound = new Timer(
-                this.roundDuration,
-                ui.renderTimeIndicator, 
-                this.countdownDuration
-            )
-
-            state.setRoundStarted(this.numberOfRounds, i)
+            this.state.setRoundStarted(this.numberOfRounds, i)
 
             const isInterrupted = await this.#currentRound.start()
             this.record(i)
@@ -90,7 +106,7 @@ class Session {
     stop() { this.#currentRound.stop() }
     record() {
         if (this.#isCurrentRoundRecorded) return
-        state.setRoundRecorded(
+        this.state.setRoundRecorded(
             this.#currentRoundNumber, 
             this.#currentRound.elapsed
         )
@@ -99,14 +115,14 @@ class Session {
         this.#records.push(this.#currentRound.elapsed)
     }
     #onStart() {
-        state.setSesionStarted()
+        this.state.setSesionStarted()
         sound.beepShort.play()
         this.isRunning = true
         this.#records = []
     }
     #onStop() {
         this.isRunning = false
-        state.setSessionEnded()       
+        this.state.setSessionEnded()       
         console.log(
             'max:', this.maxHoldingTime, 
             'avrg:', this.avrgHoldingTime
@@ -193,24 +209,24 @@ class UI {
     #handleClickOnStartBtn = () => session.start()
     #handleClickOnStopBtn = () => session.stop()
     #handleClickOnRecordBtn = () => session.record()
-    #reset = () => state.setInitial()
+    #reset = () => session.state.setInitial()
     
     init = () => {
         this.#reset()
         window.addEventListener('keyup', this.#handlePressSpaceBtn)
     }
 
-    #getStartBtn() { return this.#getElement('.start-record-btn') }
-    #getStopBtn() { return this.#getElement('.stop-reset-btn') }
-    #getTimeIndicator() { return this.#getElement('.time-indicator') }
-    #getRoundIndicator() { return this.#getElement('.round-indicator') }
-    #getSessionResultsLeft() { return this.#getElement('.session-results-left') }
-    #getSessionResultsRight() { return this.#getElement('.session-results-right') }
-    #getRoundRecordTemplate() { return this.#getElement('#round-record') }
-    #getRoundNumber(el) { return this.#getElement('.round-number', el) }
-    #getRoundResult(el) { return this.#getElement('.round-result', el) }
+    #getStartBtn = () => this.#getElement('.start-record-btn')
+    #getStopBtn = () => this.#getElement('.stop-reset-btn')
+    #getTimeIndicator = () => this.#getElement('.time-indicator')
+    #getRoundIndicator = () => this.#getElement('.round-indicator')
+    #getSessionResultsLeft = () => this.#getElement('.session-results-left')
+    #getSessionResultsRight = () => this.#getElement('.session-results-right')
+    #getRoundRecordTemplate = () => this.#getElement('#round-record')
+    #getRoundNumber = (el) => this.#getElement('.round-number', el)
+    #getRoundResult = (el) => this.#getElement('.round-result', el)
 
-    #getElement(selector, parent) {
+    #getElement = (selector, parent) => {
         return (parent || document).querySelector(selector)
     }
 
@@ -314,7 +330,6 @@ class Sound {
 }
 
 const session = new Session()
-const state = new StateManager()
 const sound = new Sound()
 const ui = new UI()
 
