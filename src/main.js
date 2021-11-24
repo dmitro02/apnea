@@ -122,11 +122,10 @@ class Session {
     }
     #onStop() {
         this.isRunning = false
-        this.state.setSessionEnded()       
-        console.log(
-            'max:', this.maxHoldingTime, 
-            'avrg:', this.avrgHoldingTime
-        )
+        this.state.setSessionEnded(
+            this.maxHoldingTime, 
+            this.avrgHoldingTime
+        )       
     }
     get avrgHoldingTime() { 
         const total = this.#records.reduce((p, c) => p + c, 0)
@@ -198,6 +197,16 @@ class UI {
             ? this.#getSessionResultsLeft().appendChild(clone)
             : this.#getSessionResultsRight().appendChild(clone)
     }
+
+    renderSessionResult = (max, avrg) => {
+        if (!max || !avrg) {
+            this.#getSessionResult().style.display = 'none'
+        } else {
+            this.#getSessionResult().style.display = 'block'
+            this.#getSessionResultMax().innerText = this.#formatTime(max)
+            this.#getSessionResultAvrg().innerText =  this.#formatTime(avrg)
+        }
+    }
     
     #handlePressSpaceBtn = (e) => {
         if (e.keyCode === 32) {
@@ -220,8 +229,11 @@ class UI {
     #getStopBtn = () => this.#getElement('.stop-reset-btn')
     #getTimeIndicator = () => this.#getElement('.time-indicator')
     #getRoundIndicator = () => this.#getElement('.round-indicator')
-    #getSessionResultsLeft = () => this.#getElement('.session-results-left')
-    #getSessionResultsRight = () => this.#getElement('.session-results-right')
+    #getSessionResultsLeft = () => this.#getElement('.session-records-left')
+    #getSessionResultsRight = () => this.#getElement('.session-records-right')
+    #getSessionResult = () => this.#getElement('.session-result')
+    #getSessionResultMax = () => this.#getElement('.session-result-max-value')
+    #getSessionResultAvrg = () => this.#getElement('.session-result-avrg-value')
     #getRoundRecordTemplate = () => this.#getElement('#round-record')
     #getRoundNumber = (el) => this.#getElement('.round-number', el)
     #getRoundResult = (el) => this.#getElement('.round-result', el)
@@ -266,7 +278,12 @@ class StateManager {
         ) 
     }
 
-    setSessionEnded() { this.#setState(this.#states.SESION_ENDED) }
+    setSessionEnded(max, avrg) { 
+        this.#setState(
+            this.#states.SESION_ENDED,
+            [ max, avrg ]            
+        ) 
+    }   
     
     #setState(state, params) {
         switch (state) {
@@ -274,6 +291,7 @@ class StateManager {
                 ui.renderRoundIndicator()
                 ui.renderTimeIndicator()
                 ui.renderSessionResults()
+                ui.renderSessionResult()
                 ui.renderStartBtn()
                 ui.renderStopBtn(true)
                 break
@@ -294,6 +312,7 @@ class StateManager {
             case this.#states.SESION_ENDED:
                 ui.renderStartBtn()
                 ui.renderResetBtn()
+                ui.renderSessionResult(...params)
         }
     }
 

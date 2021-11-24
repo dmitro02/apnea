@@ -16,7 +16,6 @@ body {
     padding: 2rem 0;
     width: min-content;
     margin: auto;
-    /* border: 1px solid; */
     height: 100%;
 }
 
@@ -28,14 +27,36 @@ body {
     font-size: 9rem;
 }
 
-.session-results {
+.session-records {
     display: flex;
     max-width: fit-content;
     margin: 2rem 0 0 1.2rem;
     font-size: 2rem;
 }
 
-.session-results-left {
+.session-result {
+    margin: 1.5rem auto;
+    max-width: fit-content;
+    border-top: 1px dashed;
+    border-bottom: 1px dashed;
+    padding: 0.6rem 0.2rem;
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.session-result > div {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+}
+
+.session-result > div > div:first-child {
+    margin-right: 1rem;
+}
+
+.session-records-left {
     margin-right: 1rem;
 }
 
