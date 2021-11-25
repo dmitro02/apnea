@@ -71,10 +71,15 @@ class Session {
     #currentRoundNumber
     #isCurrentRoundRecorded
 
-    constructor(numberOfRounds, roundDuration, countdownDuration) {
+    constructor(pubSub, numberOfRounds, roundDuration, countdownDuration) {
         this.numberOfRounds = numberOfRounds || NUMBER_OF_ROUNDS
         this.roundDuration = roundDuration || ROUND_DURATION
         this.countdownDuration = countdownDuration || COUNTDOWN_DURATION
+
+        this.pubSub = pubSub
+        this.pubSub.subcribe('SESSION_START', () => this.start())
+        this.pubSub.subcribe('SESSION_STOP', () => this.stop())
+        this.pubSub.subcribe('SESSION_RECORD', () => this.record())
     }
 
     async start() {
@@ -95,7 +100,7 @@ class Session {
             this.#isCurrentRoundRecorded = false
             this.#currentRound = new Timer(timerConfig)
 
-            this.state.setRoundStarted(this.numberOfRounds, i)
+            this.state.setRoundStarted(i)
 
             const isInterrupted = await this.#currentRound.start()
             this.record(i)
@@ -137,6 +142,10 @@ class Session {
 }
 
 class UI {
+    constructor(pubSub) {
+        this.pubSub = pubSub
+    }
+
     renderTimeIndicator = (elapsedSec = 0) => {
         const timeLeftSec = session.roundDuration === elapsedSec 
             ? session.roundDuration
@@ -144,9 +153,9 @@ class UI {
         this.#getTimeIndicator().textContent = this.#formatTime(timeLeftSec)
     }
     
-    renderRoundIndicator = (currentRoundNumber = '-') => {
+    renderRoundIndicator = (roundNumber = '-') => {
         this.#getRoundIndicator().textContent = 
-            currentRoundNumber + '/' + session.numberOfRounds
+        roundNumber + '/' + session.numberOfRounds
     }
     
     renderSessionResults = (roundNumber, recordSec) => {
@@ -215,9 +224,21 @@ class UI {
         }
     }
     
-    #handleClickOnStartBtn = () => session.start()
-    #handleClickOnStopBtn = () => session.stop()
-    #handleClickOnRecordBtn = () => session.record()
+    #handleClickOnStartBtn = () => {
+        this.pubSub.publish('SESSION_START')
+        this.renderSessionResults()
+        this.renderRecordBtn()
+        this.renderStopBtn()
+    }
+    
+    #handleClickOnStopBtn = () => {
+        this.pubSub.publish('SESSION_STOP')
+        ui.renderStartBtn()
+        ui.renderResetBtn()
+        ui.renderSessionResult(...params)
+    }
+
+    #handleClickOnRecordBtn = () => this.pubSub.publish('SESSION_RECORD')
     #reset = () => session.state.setInitial()
     
     init = () => {
@@ -264,10 +285,10 @@ class StateManager {
 
     setSesionStarted() { this.#setState(this.#states.SESION_STARTED) }
 
-    setRoundStarted(numberOfRounds, roundNumber) { 
+    setRoundStarted(roundNumber) { 
         this.#setState(
             this.#states.ROUND_STARTED,
-            [ numberOfRounds, roundNumber ]
+            [ roundNumber ]
         )
     }
 
@@ -348,8 +369,26 @@ class Sound {
     }
 }
 
-const session = new Session()
+class PubSub {
+    callbacks = new Map()
+    
+    publish = (event) => {
+        const callbacks = this.callbacks.get(event)
+        callbacks && callbacks.forEach((c) => c())
+    }
+
+    subcribe = (event, callbacks) => {
+        const callbacksToAdd = Array.isArray(callbacks) 
+            ? callbacks : [ callbacks ]
+        this.callbacks.has(event)
+            ? this.callbacks.get(event).concat(callbacksToAdd)
+            : this.callbacks.set(event, callbacksToAdd)
+    }
+}
+
+const pubSub = new PubSub()
 const sound = new Sound()
-const ui = new UI()
+const session = new Session(pubSub)
+const ui = new UI(pubSub)
 
 ui.init()
