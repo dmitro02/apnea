@@ -63,17 +63,19 @@ class Timer {
     }
 }
 
-class Session {
+class App {
     #isRunning = false
     #records
     #currentRound
     #currentRoundNumber
     #isCurrentRoundRecorded
+    sound = new Sound()
 
     constructor(numberOfRounds, roundDuration, countdownDuration) {
         this.numberOfRounds = numberOfRounds || NUMBER_OF_ROUNDS
         this.roundDuration = roundDuration || ROUND_DURATION
         this.countdownDuration = countdownDuration || COUNTDOWN_DURATION
+        this.ui = new UI(this)
     }
 
     async start() {
@@ -81,15 +83,15 @@ class Session {
         
         this.#isRunning = true
 
-        sound.beepShort.play()
+        this.sound.beepShort.play()
         this.#records = []
 
         const timerConfig = {
             duration: this.roundDuration, 
-            onInterval: ui.renderTimeIndicator, 
+            onInterval: this.ui.renderTimeIndicator, 
             countdownDuration: this.countdownDuration, 
-            playShortBeep: () => sound.beepShort.play(),
-            playLongBeep: () => sound.beepLong.play(),
+            playShortBeep: () => this.sound.beepShort.play(),
+            playLongBeep: () => this.sound.beepLong.play(),
         }
 
         for (let i = 1; i <= this.numberOfRounds; i++) {  
@@ -97,7 +99,7 @@ class Session {
             this.#isCurrentRoundRecorded = false
             this.#currentRound = new Timer(timerConfig)
 
-            ui.onRoundStarted(i)
+            this.ui.onRoundStarted(i)
 
             const isInterrupted = await this.#currentRound.start()
             this.record(i)
@@ -106,7 +108,7 @@ class Session {
 
         this.#isRunning = false
 
-        ui.onSessionEnded(
+        this.ui.onSessionEnded(
             this.maxHoldingTime, 
             this.avrgHoldingTime
         ) 
@@ -116,12 +118,12 @@ class Session {
 
     record() {
         if (this.#isCurrentRoundRecorded) return
-        ui.onRoundRecorded(
+        this.ui.onRoundRecorded(
             this.#currentRoundNumber, 
             this.#currentRound.elapsed
         )
         this.#isCurrentRoundRecorded = true
-        sound.beepShort.play()
+        this.sound.beepShort.play()
         this.#records.push(this.#currentRound.elapsed)
     }
 
@@ -140,6 +142,10 @@ class Session {
 }
 
 class UI {
+    constructor(app) {
+        this.app = app
+    }
+
     renderTimeIndicator = (elapsedSec = 0) => {
         const timeLeftSec = ROUND_DURATION === elapsedSec 
             ? ROUND_DURATION
@@ -230,7 +236,7 @@ class UI {
     #handlePressSpaceBtn = (e) => {
         if (e.keyCode === 32) {
             e.preventDefault()
-            session.onPressSpaceBar()
+            this.app.onPressSpaceBar()
         }
     }
     
@@ -239,21 +245,21 @@ class UI {
         this.renderSessionResult()
         this.renderRecordBtn()
         this.renderStopBtn()
-        session.start()
+        this.app.start()
     }
 
-    #handleClickOnStopBtn = () => session.stop()
+    #handleClickOnStopBtn = () => this.app.stop()
     #handleClickOnRecordBtn = () => {
         this.renderRecordBtn(true)
-        session.record() 
+        this.app.record() 
     }
     #reset = () => {
-        ui.renderRoundIndicator()
-        ui.renderTimeIndicator()
-        ui.renderSessionResults()
-        ui.renderSessionResult()
-        ui.renderStartBtn()
-        ui.renderStopBtn(true)
+        this.renderRoundIndicator()
+        this.renderTimeIndicator()
+        this.renderSessionResults()
+        this.renderSessionResult()
+        this.renderStartBtn()
+        this.renderStopBtn(true)
     }
     
     init = () => {
@@ -311,8 +317,4 @@ class Sound {
     }
 }
 
-const session = new Session()
-const sound = new Sound()
-const ui = new UI()
-
-ui.init()
+new App().ui.init()
