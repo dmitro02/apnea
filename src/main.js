@@ -64,8 +64,7 @@ class Timer {
 }
 
 class Session {
-    state = new StateManager()
-    isRunning = false
+    #isRunning = false
     #records
     #currentRound
     #currentRoundNumber
@@ -78,9 +77,12 @@ class Session {
     }
 
     async start() {
-        if (this.isRunning) return
+        if (this.#isRunning) return
         
-        this.#onStart()
+        this.#isRunning = true
+
+        sound.beepShort.play()
+        this.#records = []
 
         const timerConfig = {
             duration: this.roundDuration, 
@@ -95,18 +97,26 @@ class Session {
             this.#isCurrentRoundRecorded = false
             this.#currentRound = new Timer(timerConfig)
 
-            this.state.setRoundStarted(this.numberOfRounds, i)
+            ui.onRoundStarted(i)
 
             const isInterrupted = await this.#currentRound.start()
             this.record(i)
             if (isInterrupted) break
         }
-        this.#onStop()
+
+        this.#isRunning = false
+
+        ui.onSessionEnded(
+            this.maxHoldingTime, 
+            this.avrgHoldingTime
+        ) 
     }
+
     stop() { this.#currentRound.stop() }
+
     record() {
         if (this.#isCurrentRoundRecorded) return
-        this.state.setRoundRecorded(
+        ui.onRoundRecorded(
             this.#currentRoundNumber, 
             this.#currentRound.elapsed
         )
@@ -114,23 +124,16 @@ class Session {
         sound.beepShort.play()
         this.#records.push(this.#currentRound.elapsed)
     }
-    #onStart() {
-        this.state.setSesionStarted()
-        sound.beepShort.play()
-        this.isRunning = true
-        this.#records = []
+
+    onPressSpaceBar() {
+        this.#isRunning ? this.record() : this.start()
     }
-    #onStop() {
-        this.isRunning = false
-        this.state.setSessionEnded(
-            this.maxHoldingTime, 
-            this.avrgHoldingTime
-        )       
-    }
+
     get avrgHoldingTime() { 
         const total = this.#records.reduce((p, c) => p + c, 0)
         return Math.round(total / this.#records.length)
     }
+
     get maxHoldingTime() { 
         return Math.max(...this.#records)
     }
@@ -138,15 +141,15 @@ class Session {
 
 class UI {
     renderTimeIndicator = (elapsedSec = 0) => {
-        const timeLeftSec = session.roundDuration === elapsedSec 
-            ? session.roundDuration
-            : session.roundDuration - elapsedSec
+        const timeLeftSec = ROUND_DURATION === elapsedSec 
+            ? ROUND_DURATION
+            : ROUND_DURATION - elapsedSec
         this.#getTimeIndicator().textContent = this.#formatTime(timeLeftSec)
     }
     
     renderRoundIndicator = (currentRoundNumber = '-') => {
         this.#getRoundIndicator().textContent = 
-            currentRoundNumber + '/' + session.numberOfRounds
+            currentRoundNumber + '/' + NUMBER_OF_ROUNDS
     }
     
     renderSessionResults = (roundNumber, recordSec) => {
@@ -208,17 +211,50 @@ class UI {
         }
     }
     
+    onRoundStarted = (numberOfRounds, roundNumber) => {
+        this.renderRoundIndicator(numberOfRounds, roundNumber)
+        this.renderTimeIndicator()
+        this.renderRecordBtn()
+    }
+
+    onRoundRecorded = (roundNumber, elapsed) => {
+        this.renderSessionResults(roundNumber, elapsed)
+    }
+
+    onSessionEnded = (max, avrg) => {
+        this.renderStartBtn()
+        this.renderResetBtn()
+        this.renderSessionResult(max, avrg)
+    }
+
     #handlePressSpaceBtn = (e) => {
         if (e.keyCode === 32) {
             e.preventDefault()
-            session.isRunning ? session.record() : session.start()
+            session.onPressSpaceBar()
         }
     }
     
-    #handleClickOnStartBtn = () => session.start()
+    #handleClickOnStartBtn = () => { 
+        this.renderSessionResults()
+        this.renderSessionResult()
+        this.renderRecordBtn()
+        this.renderStopBtn()
+        session.start()
+    }
+
     #handleClickOnStopBtn = () => session.stop()
-    #handleClickOnRecordBtn = () => session.record()
-    #reset = () => session.state.setInitial()
+    #handleClickOnRecordBtn = () => {
+        this.renderRecordBtn(true)
+        session.record() 
+    }
+    #reset = () => {
+        ui.renderRoundIndicator()
+        ui.renderTimeIndicator()
+        ui.renderSessionResults()
+        ui.renderSessionResult()
+        ui.renderStartBtn()
+        ui.renderStopBtn(true)
+    }
     
     init = () => {
         this.#reset()
@@ -249,80 +285,7 @@ class UI {
     }
     
     #formatTimeValue = (val) => val < 10 ? '0' + val : val
-}
-
-class StateManager {
-    #states = this.#createEnum([
-        'INITIAL', 
-        'SESION_STARTED',
-        'ROUND_STARTED',
-        'ROUND_RECORDED',
-        'SESION_ENDED'
-    ])
-
-    setInitial() { this.#setState(this.#states.INITIAL) }
-
-    setSesionStarted() { this.#setState(this.#states.SESION_STARTED) }
-
-    setRoundStarted(numberOfRounds, roundNumber) { 
-        this.#setState(
-            this.#states.ROUND_STARTED,
-            [ numberOfRounds, roundNumber ]
-        )
-    }
-
-    setRoundRecorded(roundNumber, elapsed) { 
-        this.#setState(
-            this.#states.ROUND_RECORDED,
-            [ roundNumber, elapsed ]
-        ) 
-    }
-
-    setSessionEnded(max, avrg) { 
-        this.#setState(
-            this.#states.SESION_ENDED,
-            [ max, avrg ]            
-        ) 
-    }   
-    
-    #setState(state, params) {
-        switch (state) {
-            case this.#states.INITIAL:
-                ui.renderRoundIndicator()
-                ui.renderTimeIndicator()
-                ui.renderSessionResults()
-                ui.renderSessionResult()
-                ui.renderStartBtn()
-                ui.renderStopBtn(true)
-                break
-            case this.#states.SESION_STARTED:
-                ui.renderSessionResults()
-                ui.renderRecordBtn()
-                ui.renderStopBtn()
-                break
-            case this.#states.ROUND_STARTED:
-                ui.renderRoundIndicator(...params)
-                ui.renderTimeIndicator()
-                ui.renderRecordBtn()
-                break            
-            case this.#states.ROUND_RECORDED:
-                ui.renderRecordBtn(true)
-                ui.renderSessionResults(...params)
-                break
-            case this.#states.SESION_ENDED:
-                ui.renderStartBtn()
-                ui.renderResetBtn()
-                ui.renderSessionResult(...params)
-        }
-    }
-
-    #createEnum(values) {
-        return Object.freeze(
-            values.reduce((obj, val) => 
-                ({ ...obj, [val]:val }), {})
-        )
-    }
-}
+} 
 
 class Sound {
     #sounds = []
