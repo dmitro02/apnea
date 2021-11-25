@@ -196,7 +196,7 @@ class UI {
         const clone = this.#getRoundRecordTemplate().content.cloneNode(true)
         this.#getRoundNumber(clone).textContent = roundNumber + '.'
         this.#getRoundResult(clone).textContent = this.#formatTime(recordSec)
-        roundNumber <= Math.ceil(session.numberOfRounds / 2)
+        roundNumber <= Math.ceil(NUMBER_OF_ROUNDS / 2)
             ? this.#getSessionResultsLeft().appendChild(clone)
             : this.#getSessionResultsRight().appendChild(clone)
     }
