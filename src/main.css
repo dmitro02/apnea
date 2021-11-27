@@ -87,3 +87,17 @@ button {
     margin-right: 0.6rem;
     text-align: right;
 }
+
+.settings-box {
+    color: white;
+    font-size: 2rem;
+}
+
+input[type="number"] {
+    width: 3.5rem;
+    background-color: black;
+    color: white;
+    border: 1px solid;
+    font-size: 2rem;
+    padding: 3px;
+}
