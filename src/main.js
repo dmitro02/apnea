@@ -69,13 +69,11 @@ class App {
     #currentRound
     #currentRoundNumber
     #isCurrentRoundRecorded
-    sound = new Sound()
+    config = new Config()
 
-    constructor(numberOfRounds, roundDuration, countdownDuration) {
-        this.numberOfRounds = numberOfRounds || NUMBER_OF_ROUNDS
-        this.roundDuration = roundDuration || ROUND_DURATION
-        this.countdownDuration = countdownDuration || COUNTDOWN_DURATION
+    constructor() {
         this.ui = new UI(this)
+        this.sound = new Sound(this.config.volume)
     }
 
     async start() {
@@ -87,14 +85,14 @@ class App {
         this.#records = []
 
         const timerConfig = {
-            duration: this.roundDuration, 
+            duration: this.config.roundDuration, 
             onInterval: this.ui.renderTimeIndicator, 
-            countdownDuration: this.countdownDuration, 
+            countdownDuration: this.config.countdownDuration, 
             playShortBeep: () => this.sound.beepShort.play(),
             playLongBeep: () => this.sound.beepLong.play(),
         }
 
-        for (let i = 1; i <= this.numberOfRounds; i++) {  
+        for (let i = 1; i <= this.config.numberOfRounds; i++) {  
             this.#currentRoundNumber = i
             this.#isCurrentRoundRecorded = false
             this.#currentRound = new Timer(timerConfig)
@@ -147,15 +145,15 @@ class UI {
     }
 
     renderTimeIndicator = (elapsedSec = 0) => {
-        const timeLeftSec = ROUND_DURATION === elapsedSec 
-            ? ROUND_DURATION
-            : ROUND_DURATION - elapsedSec
+        const timeLeftSec = this.app.config.roundDuration === elapsedSec 
+            ? this.app.config.roundDuration
+            : this.app.config.roundDuration - elapsedSec
         this.#getTimeIndicator().textContent = this.#formatTime(timeLeftSec)
     }
     
     renderRoundIndicator = (currentRoundNumber = '-') => {
         this.#getRoundIndicator().textContent = 
-            currentRoundNumber + '/' + NUMBER_OF_ROUNDS
+            currentRoundNumber + '/' + this.app.config.numberOfRounds
     }
     
     renderSessionResults = (roundNumber, recordSec) => {
@@ -202,7 +200,7 @@ class UI {
         const clone = this.#getRoundRecordTemplate().content.cloneNode(true)
         this.#getRoundNumber(clone).textContent = roundNumber + '.'
         this.#getRoundResult(clone).textContent = this.#formatTime(recordSec)
-        roundNumber <= Math.ceil(NUMBER_OF_ROUNDS / 2)
+        roundNumber <= Math.ceil(this.app.config.numberOfRounds / 2)
             ? this.#getSessionResultsLeft().appendChild(clone)
             : this.#getSessionResultsRight().appendChild(clone)
     }
@@ -297,7 +295,7 @@ class Sound {
     #sounds = []
 
     constructor(volume) {
-        this.defaultVolume = volume || VOLUME
+        this.defaultVolume = volume
 
         this.beepShort = this.#getBeep(1000)
         this.beepLong = this.#getBeep(4000)
@@ -314,6 +312,49 @@ class Sound {
 
     setVolume(volume) {
         this.#sounds.forEach((s) => s.volume = volume)
+    }
+}
+
+class Config {
+    #DEFAULT_ROUND_DURATION = 6
+    #DEFAULT_NUMBER_OF_ROUNDS = 5
+    #DEFAULT_COUNTDOWN_DURATION = 3
+    #DEFAULT_VOLUME = 0.01
+    #ROUND_DURATION_ITEM_NAME = 'apneaAppRoundDuration'
+    #NUMBER_OF_ROUNDS_ITEM_NAME = 'apneaAppNumberOfRounds'
+    #COUNTDOWN_DURATION_ITEM_NAME = 'apneaAppCountdownDuration'
+    #VOLUME_ITEM_NAME = 'apneaAppVolume'
+    constructor() {
+        this.roundDuration = this.#restoreFromLocalStorage(
+            this.#ROUND_DURATION_ITEM_NAME, 
+            this.#DEFAULT_ROUND_DURATION
+        ) 
+        this.numberOfRounds = this.#restoreFromLocalStorage(
+            this.#NUMBER_OF_ROUNDS_ITEM_NAME, 
+            this.#DEFAULT_NUMBER_OF_ROUNDS
+        ) 
+        this.countdownDuration = this.#restoreFromLocalStorage(
+            this.#COUNTDOWN_DURATION_ITEM_NAME, 
+            this.#DEFAULT_COUNTDOWN_DURATION
+        ) 
+        this.volume = this.#restoreFromLocalStorage(
+            this.#VOLUME_ITEM_NAME, 
+            this.#DEFAULT_VOLUME
+        ) 
+    }
+
+    set numberOfRounds(value) {
+        // this.numberOfRounds = value
+        localStorage.setItem(this.#NUMBER_OF_ROUNDS_ITEM_NAME, value)
+    }
+
+    #restoreFromLocalStorage = (itemName, defaultValue) => {
+        // const saved = localStorage.getItem(itemName)
+        // if (saved) return saved
+        // localStorage.setItem(itemName, defaultValue)
+        // return defaultValue
+
+        return localStorage.getItem(itemName) || defaultValue
     }
 }
 

@@ -25,6 +25,8 @@ body {
 
 .time-indicator {    
     font-size: 9rem;
+    width: 22rem;
+    text-align: left;
 }
 
 .session-records {
