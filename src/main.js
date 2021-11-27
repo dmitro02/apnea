@@ -1,8 +1,3 @@
-const ROUND_DURATION = 6
-const NUMBER_OF_ROUNDS = 5
-const COUNTDOWN_DURATION = 3
-const VOLUME = 0.01
-
 class Timer {
     constructor(config) {
         const { 
@@ -183,7 +178,7 @@ class UI {
     
     renderStopBtn = (isDisabled) => {
         const btn = this.#getStopBtn()
-        btn.removeEventListener('click', this.#reset)
+        btn.removeEventListener('click', this.reset)
         btn.addEventListener('click', this.#handleClickOnStopBtn)
         btn.textContent = 'stop'
         btn.disabled = isDisabled
@@ -192,7 +187,7 @@ class UI {
     renderResetBtn = () => {
         const btn = this.#getStopBtn()
         btn.removeEventListener('click', this.#handleClickOnStopBtn)
-        btn.addEventListener('click', this.#reset)
+        btn.addEventListener('click', this.reset)
         btn.textContent = 'reset'
     }
     
@@ -251,7 +246,7 @@ class UI {
         this.renderRecordBtn(true)
         this.app.record() 
     }
-    #reset = () => {
+    reset = () => {
         this.renderRoundIndicator()
         this.renderTimeIndicator()
         this.renderSessionResults()
@@ -261,7 +256,7 @@ class UI {
     }
     
     init = () => {
-        this.#reset()
+        this.reset()
         window.addEventListener('keyup', this.#handlePressSpaceBtn)
     }
 
@@ -343,19 +338,31 @@ class Config {
         ) 
     }
 
-    set numberOfRounds(value) {
-        // this.numberOfRounds = value
+    setRoundDuration(value) {
+        this.roundDuration = value
+        localStorage.setItem(this.#ROUND_DURATION_ITEM_NAME, value)
+    }
+
+    setNumberOfRounds(value) {
+        this.numberOfRounds = value
         localStorage.setItem(this.#NUMBER_OF_ROUNDS_ITEM_NAME, value)
     }
 
-    #restoreFromLocalStorage = (itemName, defaultValue) => {
-        // const saved = localStorage.getItem(itemName)
-        // if (saved) return saved
-        // localStorage.setItem(itemName, defaultValue)
-        // return defaultValue
-
-        return localStorage.getItem(itemName) || defaultValue
+    setCountdownDuration(value) {
+        this.countdownDuration = value
+        localStorage.setItem(this.#COUNTDOWN_DURATION_ITEM_NAME, value)
     }
+
+    setVolume(value) {
+        this.volume = value
+        localStorage.setItem(this.#VOLUME_ITEM_NAME, value)
+    }
+
+    #restoreFromLocalStorage = (itemName, defaultValue) =>
+        localStorage.getItem(itemName) || defaultValue
 }
 
-new App().ui.init()
+// new App().ui.init()
+
+const app = new App()
+app.ui.init()
