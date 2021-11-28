@@ -9,56 +9,69 @@
 </head>
 <body>
     <div class="settings-box">
-        <span for="roundDurationMin">Round Duration:</span>
-        <input 
-            type="number" 
-            id="roundDurationMin" 
-            name="roundDurationMin" 
-            value="4"
-            step="1" 
-            min="0" 
-            max="12"
-        >
-        <label for="roundDurationMin">m</label>
-        <input 
-            type="number" 
-            id="roundDurationSec"
-            name="roundDurationec" 
-            value="0"
-            step="5" 
-            min="0" 
-            max="55"
-        >
-        <label for="roundDurationMin">s</label>
-        <label for="numberOfRounds">Number of Rounds:</label>
-        <input 
-            type="number" 
-            id="numberOfRounds" 
-            name="numberOfRounds"
-            value="8" 
-            step="1" 
-            min="1" 
-            max="12"
-        >
-        <label for="contdownDuration">Contdown Duration:</label>
-        <input 
-            type="number" 
-            id="contdownDuration" 
-            name="contdownDuration"
-            value="10" 
-            step="1" 
-            min="1" 
-            max="60"
-        >
-        <label for="volume">Volume:</label>
-        <input 
-            type="range" 
-            id="volume" 
-            name="volume" 
-            value="10"
-            min="0" 
-            max="100"
-        >
+        <div class="settings-input">
+            <label>Round Duration</label>
+            <div>
+                <input 
+                    type="number" 
+                    id="roundDurationMin" 
+                    name="roundDurationMin" 
+                    value="4"
+                    step="1" 
+                    min="0" 
+                    max="12"
+                >
+                <label for="roundDurationMin">m</label>
+                <input 
+                    type="number" 
+                    id="roundDurationSec"
+                    name="roundDurationec" 
+                    value="0"
+                    step="5" 
+                    min="0" 
+                    max="55"
+                >
+                <label for="roundDurationSec">s</label>
+            </div>
+        </div>
+        <div class="settings-input">
+            <label for="numberOfRounds">Number of Rounds</label>
+            <input 
+                type="number" 
+                id="numberOfRounds" 
+                name="numberOfRounds"
+                value="8" 
+                step="1" 
+                min="1" 
+                max="12"
+            >
+        </div>
+        <div class="settings-input">
+            <label for="contdownDuration">Contdown Duration</label>
+            <div>
+                <input 
+                    type="number" 
+                    id="contdownDuration" 
+                    name="contdownDuration"
+                    value="10" 
+                    step="1" 
+                    min="1" 
+                    max="60"
+                >
+                <label for="contdownDuration">s</label>
+            </div>
+        </div>
+        <div class="settings-input">
+            <label for="volume">Volume</label>
+            <input 
+                type="range" 
+                id="volume" 
+                name="volume" 
+                value="10"
+                min="0" 
+                max="100"
+            >
+        </div>
     </div>
     <div class="main-box">
         <div class="top-bar">

@@ -90,14 +90,33 @@ button {
 
 .settings-box {
     color: white;
-    font-size: 2rem;
+    font-size: 1.6rem;
+    width: 22rem;
+    margin: auto;
+}
+
+.settings-input {
+    display: flex;
+    justify-content: space-between;
+    white-space: nowrap;
+    margin: 1rem 0;
 }
 
 input[type="number"] {
-    width: 3.5rem;
+    width: 1.7rem;
     background-color: black;
     color: white;
-    border: 1px solid;
-    font-size: 2rem;
-    padding: 3px;
+    border: none;
+    font-size: 1.5rem;
+    -moz-appearance: textfield;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+label[for="roundDurationMin"] {
+    margin-right: 1rem;
 }
