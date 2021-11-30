@@ -137,18 +137,19 @@ class App {
 class UI {
     constructor(app) {
         this.app = app
+        this.config = app.config
     }
 
     renderTimeIndicator = (elapsedSec = 0) => {
-        const timeLeftSec = this.app.config.roundDuration === elapsedSec 
-            ? this.app.config.roundDuration
-            : this.app.config.roundDuration - elapsedSec
+        const timeLeftSec = this.config.roundDuration === elapsedSec 
+            ? this.config.roundDuration
+            : this.config.roundDuration - elapsedSec
         this.#getTimeIndicator().textContent = this.#formatTime(timeLeftSec)
     }
     
     renderRoundIndicator = (currentRoundNumber = '-') => {
         this.#getRoundIndicator().textContent = 
-            currentRoundNumber + '/' + this.app.config.numberOfRounds
+            currentRoundNumber + '/' + this.config.numberOfRounds
     }
     
     renderSessionResults = (roundNumber, recordSec) => {
@@ -195,30 +196,30 @@ class UI {
         const clone = this.#getRoundRecordTemplate().content.cloneNode(true)
         this.#getRoundNumber(clone).textContent = roundNumber + '.'
         this.#getRoundResult(clone).textContent = this.#formatTime(recordSec)
-        roundNumber <= Math.ceil(this.app.config.numberOfRounds / 2)
+        roundNumber <= Math.ceil(this.config.numberOfRounds / 2)
             ? this.#getSessionResultsLeft().appendChild(clone)
             : this.#getSessionResultsRight().appendChild(clone)
     }
 
     renderSessionResult = (max, avrg) => {
         if (!max || !avrg) {
-            this.#getSessionResult().style.display = 'none'
+            this.#showElement(this.#getSessionResult(), false)
         } else {
-            this.#getSessionResult().style.display = 'block'
+            this.#showElement(this.#getSessionResult())
             this.#getSessionResultMax().innerText = this.#formatTime(max)
             this.#getSessionResultAvrg().innerText =  this.#formatTime(avrg)
         }
     }
 
     renderSettingsPanel = () => {
-        this.#getRoundDurationMinInpt().value = app.config.getRoundDurationMin()
-        this.#getRoundDurationSecInpt().value = app.config.getRoundDurationSec()
-        this.#getNumberOfRoundsInpt().value = app.config.numberOfRounds
-        this.#getCountdownDurationInpt().value = app.config.countdownDuration
-        this.#getVolumeInpt().value = app.config.getVolumeInteger()
+        this.#getRoundDurationMinInpt().value = this.config.getRoundDurationMin()
+        this.#getRoundDurationSecInpt().value = this.config.getRoundDurationSec()
+        this.#getNumberOfRoundsInpt().value = this.config.numberOfRounds
+        this.#getCountdownDurationInpt().value = this.config.countdownDuration
+        this.#getVolumeInpt().value = this.config.getVolumeInteger()
 
-        this.#getMainPanel().style.display = 'none'
-        this.#getSettingsPanel().style.display = 'block'
+        this.#showElement(this.#getMainPanel(), false)
+        this.#showElement(this.#getSettingsPanel())
     }
     
     onRoundStarted = (numberOfRounds, roundNumber) => {
@@ -309,15 +310,15 @@ class UI {
     
     #formatTimeValue = (val) => val < 10 ? '0' + val : val
 
-    #handleRoundDurationMinChange = (e) => {
-        const value = e.target.value
-        console.log(value);
+    #showElement = (el, isDisplayed = true) => 
+        el.style.display = isDisplayed ? 'block' : 'none'
 
+    #validateRoundDurationMin = (e) => {
+        const value = e.target.value
         if (value < 0 || value > 59) {
-            e.target.value = app.config.roundDuration
-            console.log('bad value')
+            e.target.value = this.config.roundDuration
         }
-        app.config.roundDuration = value
+        this.config.roundDuration = value
     }
 
     #handleSaveSettings = () => {
@@ -327,13 +328,14 @@ class UI {
         const cd = this.#getCountdownDurationInpt().value
         const v = this.#getVolumeInpt().value
 
-        app.config.setRoundDuration(rdm * 60 + rds * 1)
-        app.config.setNumberOfRounds(nr)
-        app.config.setCountdownDuration(cd)
-        app.config.setVolume(v / 100)
+        this.config.setRoundDuration(rdm * 60 + rds * 1)
+        this.config.setNumberOfRounds(nr)
+        this.config.setCountdownDuration(cd)
+        this.config.setVolume(v / 100)
 
-        this.#getSettingsPanel().style.display = 'none'
-        this.#getMainPanel().style.display = 'block'
+        this.#showElement(this.#getSettingsPanel(), false)
+        this.#showElement(this.#getMainPanel())
+
         this.reset()
     }
 } 
@@ -420,7 +422,4 @@ class Config {
     getVolumeInteger = () => this.volume * 100
 }
 
-// new App().ui.init()
-
-const app = new App()
-app.ui.init()
+new App().ui.init()
