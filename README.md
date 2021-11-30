@@ -7,3 +7,5 @@ https://youtu.be/eXBZUee4EpY?list=PLVDEz46YIYvoWZJeYq39BlDhDblFjkQva&t=224
 - custom button elements
 - border visibility for open settings button and session stats in Mi Browser
 - app width in mobile Firefox
+- settings animation
+- icon

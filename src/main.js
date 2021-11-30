@@ -212,11 +212,21 @@ class UI {
     }
 
     renderSettingsPanel = () => {
-        this.#getRoundDurationMinInpt().value = this.config.getRoundDurationMin()
-        this.#getRoundDurationSecInpt().value = this.config.getRoundDurationSec()
-        this.#getNumberOfRoundsInpt().value = this.config.numberOfRounds
-        this.#getCountdownDurationInpt().value = this.config.countdownDuration
+        const rdm = this.#getRoundDurationMinInpt()
+        const rds = this.#getRoundDurationSecInpt()
+        const nr = this.#getNumberOfRoundsInpt()
+        const cd = this.#getCountdownDurationInpt()
+
+        rdm.value = this.config.getRoundDurationMin()
+        rds.value = this.config.getRoundDurationSec()
+        nr.value = this.config.numberOfRounds
+        cd.value = this.config.countdownDuration
         this.#getVolumeInpt().value = this.config.getVolumeInteger()
+
+        rdm.addEventListener('change', this.#validateRoundDurationMin)
+        rds.addEventListener('change', this.#validateRoundDurationSec)
+        nr.addEventListener('change', this.#validateNumberOfRounds)
+        cd.addEventListener('change', this.#validateCountdownDuration)
 
         this.#showElement(this.#getMainPanel(), false)
         this.#showElement(this.#getSettingsPanel())
@@ -313,12 +323,27 @@ class UI {
     #showElement = (el, isDisplayed = true) => 
         el.style.display = isDisplayed ? 'block' : 'none'
 
-    #validateRoundDurationMin = (e) => {
+    #validateRoundDurationMin = (e) =>
+        this.#validateTimeValue(e, this.config.getRoundDurationMin())
+
+    #validateRoundDurationSec = (e) =>
+        this.#validateTimeValue(e, this.config.getRoundDurationSec())
+
+    #validateCountdownDuration = (e) =>
+        this.#validateTimeValue(e, this.config.countdownDuration)
+
+    #validateNumberOfRounds = (e) => {
         const value = e.target.value
-        if (value < 0 || value > 59) {
-            e.target.value = this.config.roundDuration
+        if (value === '' || value < 1) {
+            e.target.value = this.config.numberOfRounds
         }
-        this.config.roundDuration = value
+    }
+
+    #validateTimeValue = (e, fallbackValue) => {
+        const value = e.target.value
+        if (value === '' || value < 0 || value > 59) {
+            e.target.value = fallbackValue
+        }
     }
 
     #handleSaveSettings = () => {
@@ -365,9 +390,9 @@ class Sound {
 }
 
 class Config {
-    #DEFAULT_ROUND_DURATION = 6
-    #DEFAULT_NUMBER_OF_ROUNDS = 5
-    #DEFAULT_COUNTDOWN_DURATION = 3
+    #DEFAULT_ROUND_DURATION = 240
+    #DEFAULT_NUMBER_OF_ROUNDS = 8
+    #DEFAULT_COUNTDOWN_DURATION = 20
     #DEFAULT_VOLUME = 0.01
     #ROUND_DURATION_ITEM_NAME = 'apneaAppRoundDuration'
     #NUMBER_OF_ROUNDS_ITEM_NAME = 'apneaAppNumberOfRounds'
