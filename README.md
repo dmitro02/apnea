@@ -8,3 +8,4 @@ https://youtu.be/eXBZUee4EpY?list=PLVDEz46YIYvoWZJeYq39BlDhDblFjkQva&t=224
 - border visibility for open settings button and session stats in Mi Browser
 - app width in mobile Firefox
 - icon
+- beep on stop immediately

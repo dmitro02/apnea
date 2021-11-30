@@ -236,12 +236,14 @@ class UI {
         const rds = this.#getRoundDurationSecInpt().value
         const nr = this.#getNumberOfRoundsInpt().value
         const cd = this.#getCountdownDurationInpt().value
-        const v = this.#getVolumeInpt().value
+        const v = this.#getVolumeInpt().value / 100
 
         this.config.setRoundDuration(rdm, rds)
         this.config.setNumberOfRounds(nr)
         this.config.setCountdownDuration(cd)
-        this.config.setVolume(v / 100)
+        this.config.setVolume(v)
+
+        this.app.sound.setVolume(v)
 
         this.#getSettingsPanel().classList.remove('opened')
 
