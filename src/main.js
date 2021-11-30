@@ -228,8 +228,24 @@ class UI {
         nr.addEventListener('change', this.#validateNumberOfRounds)
         cd.addEventListener('change', this.#validateCountdownDuration)
 
-        this.#showElement(this.#getMainPanel(), false)
-        this.#showElement(this.#getSettingsPanel())
+        this.#getSettingsPanel().classList.add('opened')
+    }
+
+    #handleSaveSettings = () => {
+        const rdm = this.#getRoundDurationMinInpt().value
+        const rds = this.#getRoundDurationSecInpt().value
+        const nr = this.#getNumberOfRoundsInpt().value
+        const cd = this.#getCountdownDurationInpt().value
+        const v = this.#getVolumeInpt().value
+
+        this.config.setRoundDuration(rdm, rds)
+        this.config.setNumberOfRounds(nr)
+        this.config.setCountdownDuration(cd)
+        this.config.setVolume(v / 100)
+
+        this.#getSettingsPanel().classList.remove('opened')
+
+        this.reset()
     }
     
     onRoundStarted = (numberOfRounds, roundNumber) => {
@@ -344,24 +360,6 @@ class UI {
         if (value === '' || value < 0 || value > 59) {
             e.target.value = fallbackValue
         }
-    }
-
-    #handleSaveSettings = () => {
-        const rdm = this.#getRoundDurationMinInpt().value
-        const rds = this.#getRoundDurationSecInpt().value
-        const nr = this.#getNumberOfRoundsInpt().value
-        const cd = this.#getCountdownDurationInpt().value
-        const v = this.#getVolumeInpt().value
-
-        this.config.setRoundDuration(rdm, rds)
-        this.config.setNumberOfRounds(nr)
-        this.config.setCountdownDuration(cd)
-        this.config.setVolume(v / 100)
-
-        this.#showElement(this.#getSettingsPanel(), false)
-        this.#showElement(this.#getMainPanel())
-
-        this.reset()
     }
 } 
 

@@ -9,12 +9,16 @@ body {
     margin: 0;
 }
 
+.main-container {
+    display: flex;
+    justify-content: center;
+}
+
 .main-box, .settings-box {
     box-sizing: border-box;
     text-align: center;
     font-family: sans-serif;
     padding: 2rem 0;
-    margin: auto;
     height: 100%;
 }
 
@@ -25,8 +29,17 @@ body {
 
 .settings-box {
     font-size: 1.6rem;
-    width: 22rem;
-    display: none;
+    width: 23rem;
+    visibility: hidden;
+    opacity: 0;
+    position: absolute;
+    background-color: black;
+    transition: visibility 0s, opacity 0.3s linear;
+}
+
+.settings-box.opened {
+    visibility: visible;
+    opacity: 1;
 }
 
 .round-indicator {
