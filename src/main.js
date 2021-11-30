@@ -353,7 +353,7 @@ class UI {
         const cd = this.#getCountdownDurationInpt().value
         const v = this.#getVolumeInpt().value
 
-        this.config.setRoundDuration(rdm * 60 + rds * 1)
+        this.config.setRoundDuration(rdm, rds)
         this.config.setNumberOfRounds(nr)
         this.config.setCountdownDuration(cd)
         this.config.setVolume(v / 100)
@@ -417,9 +417,13 @@ class Config {
         ) 
     }
 
-    setRoundDuration(value) {
-        this.roundDuration = value
-        localStorage.setItem(this.#ROUND_DURATION_ITEM_NAME, value)
+    setRoundDuration(val1, val2) {
+        if (val1 && val2) {
+            this.roundDuration = val1 * 60 + val2 * 1
+        } else {
+            this.roundDuration = val1
+        }
+        localStorage.setItem(this.#ROUND_DURATION_ITEM_NAME, this.roundDuration)
     }
 
     setNumberOfRounds(value) {
