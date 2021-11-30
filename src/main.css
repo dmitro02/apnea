@@ -9,14 +9,24 @@ body {
     margin: 0;
 }
 
-.main-box {
+.main-box, .settings-box {
     box-sizing: border-box;
     text-align: center;
     font-family: sans-serif;
     padding: 2rem 0;
-    width: min-content;
     margin: auto;
     height: 100%;
+}
+
+.main-box {
+    text-align: center;
+    width: min-content;
+}
+
+.settings-box {
+    font-size: 1.6rem;
+    width: 22rem;
+    display: none;
 }
 
 .round-indicator {
@@ -88,18 +98,16 @@ button {
     text-align: right;
 }
 
-.settings-box {
-    color: white;
-    font-size: 1.6rem;
-    width: 22rem;
-    margin: auto;
-}
-
 .settings-input {
     display: flex;
     justify-content: space-between;
     white-space: nowrap;
-    margin: 1rem 0;
+    border-top: 1px solid gray;
+    padding: 1rem;
+}
+
+.settings-input:last-child {
+    border-bottom: 1px solid gray;
 }
 
 input[type="number"] {
@@ -108,6 +116,7 @@ input[type="number"] {
     color: white;
     border: none;
     font-size: 1.5rem;
+    text-align: right;
     -moz-appearance: textfield;
 }
 
@@ -117,6 +126,49 @@ input::-webkit-inner-spin-button {
     margin: 0;
 }
 
-label[for="roundDurationMin"] {
-    margin-right: 1rem;
+.min-sec-group, .top-bar {
+    display: flex;
+}
+
+.top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.top-bar div:first-child {
+    width: 2rem;
+}
+
+.open-settings-btn {
+    width: 2rem;
+    height: 2rem;
+    border-top: 4px solid;
+    border-bottom: 4px solid;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.open-settings-btn div {
+    border: 2px solid;
+    width: 100%;
+}
+
+.close-settings-btn {
+    border: 2px solid;
+    border-radius: 50%;
+    width: 2rem;
+    height: 2rem;
+    margin: 0 0 2rem auto;
+    cursor: pointer;
+    font-size: 3rem;
+    transform: rotate(45deg);
+}
+
+.close-settings-btn::after {
+    content: "+";
+    position: relative;
+    top: -11px;
 }

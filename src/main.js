@@ -209,6 +209,17 @@ class UI {
             this.#getSessionResultAvrg().innerText =  this.#formatTime(avrg)
         }
     }
+
+    renderSettingsPanel = () => {
+        this.#getRoundDurationMinInpt().value = app.config.getRoundDurationMin()
+        this.#getRoundDurationSecInpt().value = app.config.getRoundDurationSec()
+        this.#getNumberOfRoundsInpt().value = app.config.numberOfRounds
+        this.#getCountdownDurationInpt().value = app.config.countdownDuration
+        this.#getVolumeInpt().value = app.config.getVolumeInteger()
+
+        this.#getMainPanel().style.display = 'none'
+        this.#getSettingsPanel().style.display = 'block'
+    }
     
     onRoundStarted = (numberOfRounds, roundNumber) => {
         this.renderRoundIndicator(numberOfRounds, roundNumber)
@@ -257,6 +268,10 @@ class UI {
     
     init = () => {
         this.reset()
+        this.#getOpenSettingsBtn()
+            .addEventListener('click', this.renderSettingsPanel)
+        this.#getCloseSettingsBtn()
+            .addEventListener('click', this.#handleSaveSettings)
         window.addEventListener('keyup', this.#handlePressSpaceBtn)
     }
 
@@ -272,6 +287,15 @@ class UI {
     #getRoundRecordTemplate = () => this.#getElement('#round-record')
     #getRoundNumber = (el) => this.#getElement('.round-number', el)
     #getRoundResult = (el) => this.#getElement('.round-result', el)
+    #getRoundDurationMinInpt = () => this.#getElement('#roundDurationMin')
+    #getRoundDurationSecInpt = () => this.#getElement('#roundDurationSec')
+    #getCountdownDurationInpt = () => this.#getElement('#contdownDuration')
+    #getNumberOfRoundsInpt = () => this.#getElement('#numberOfRounds')
+    #getVolumeInpt = () => this.#getElement('#volume')
+    #getOpenSettingsBtn = () => this.#getElement('.open-settings-btn')
+    #getCloseSettingsBtn = () => this.#getElement('.close-settings-btn')
+    #getSettingsPanel = () => this.#getElement('.settings-box')
+    #getMainPanel = () => this.#getElement('.main-box')
 
     #getElement = (selector, parent) => {
         return (parent || document).querySelector(selector)
@@ -284,6 +308,34 @@ class UI {
     }
     
     #formatTimeValue = (val) => val < 10 ? '0' + val : val
+
+    #handleRoundDurationMinChange = (e) => {
+        const value = e.target.value
+        console.log(value);
+
+        if (value < 0 || value > 59) {
+            e.target.value = app.config.roundDuration
+            console.log('bad value')
+        }
+        app.config.roundDuration = value
+    }
+
+    #handleSaveSettings = () => {
+        const rdm = this.#getRoundDurationMinInpt().value
+        const rds = this.#getRoundDurationSecInpt().value
+        const nr = this.#getNumberOfRoundsInpt().value
+        const cd = this.#getCountdownDurationInpt().value
+        const v = this.#getVolumeInpt().value
+
+        app.config.setRoundDuration(rdm * 60 + rds * 1)
+        app.config.setNumberOfRounds(nr)
+        app.config.setCountdownDuration(cd)
+        app.config.setVolume(v / 100)
+
+        this.#getSettingsPanel().style.display = 'none'
+        this.#getMainPanel().style.display = 'block'
+        this.reset()
+    }
 } 
 
 class Sound {
@@ -360,6 +412,12 @@ class Config {
 
     #restoreFromLocalStorage = (itemName, defaultValue) =>
         localStorage.getItem(itemName) || defaultValue
+
+    getRoundDurationMin = () => Math.floor(this.roundDuration / 60)
+
+    getRoundDurationSec = () => this.roundDuration % 60
+
+    getVolumeInteger = () => this.volume * 100
 }
 
 // new App().ui.init()
