@@ -85,6 +85,13 @@ body {
     margin-right: 1rem;
 }
 
+button, .button {
+    -webkit-tap-highlight-color: transparent;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
 button {
     width: 10rem;
     height: 5rem;
