@@ -163,32 +163,32 @@ class UI {
     
     renderStartBtn = () => {
         const btn = this.#getStartBtn()
-        btn.removeEventListener('click', this.#handleClickOnRecordBtn)
-        btn.addEventListener('click', this.#handleClickOnStartBtn)
+        this.#removeClickListener(btn, this.#handleClickOnRecordBtn)
+        this.#addClickListener(btn, this.#handleClickOnStartBtn)
         btn.textContent = 'start'
         btn.disabled = false
     }
     
     renderRecordBtn = (isDisabled) => {
         const btn = this.#getStartBtn()
-        btn.removeEventListener('click', this.#handleClickOnStartBtn)
-        btn.addEventListener('click', this.#handleClickOnRecordBtn)
+        this.#removeClickListener(btn, this.#handleClickOnStartBtn)
+        this.#addClickListener(btn, this.#handleClickOnRecordBtn)
         btn.textContent = 'record'
         btn.disabled = isDisabled
     }
     
     renderStopBtn = (isDisabled) => {
         const btn = this.#getStopBtn()
-        btn.removeEventListener('click', this.reset)
-        btn.addEventListener('click', this.#handleClickOnStopBtn)
+        this.#removeClickListener(btn, this.reset)
+        this.#addClickListener(btn, this.#handleClickOnStopBtn)
         btn.textContent = 'stop'
         btn.disabled = isDisabled
     }
     
     renderResetBtn = () => {
         const btn = this.#getStopBtn()
-        btn.removeEventListener('click', this.#handleClickOnStopBtn)
-        btn.addEventListener('click', this.reset)
+        this.#removeClickListener(btn, this.#handleClickOnStopBtn)
+        this.#addClickListener(btn, this.reset)
         btn.textContent = 'reset'
     }
     
@@ -339,6 +339,8 @@ class UI {
     }
 
     #addClickListener = (el, handler) => el.addEventListener('click', handler)
+
+    #removeClickListener = (el, handler) => el.removeEventListener('click', handler)
 
     #getElement = (selector, parent) => {
         return (parent || document).querySelector(selector)
