@@ -14,7 +14,7 @@ body {
     justify-content: center;
 }
 
-.main-box, .settings-box {
+.main-box, .settings-box, .help-box {
     box-sizing: border-box;
     text-align: center;
     font-family: sans-serif;
@@ -27,17 +27,20 @@ body {
     width: min-content;
 }
 
-.settings-box {
+.settings-box, .help-box {
     font-size: 1.6rem;
     width: 23rem;
     visibility: hidden;
     opacity: 0;
     position: absolute;
     background-color: black;
+}
+
+.settings-box {
     transition: visibility 0s, opacity 0.3s linear;
 }
 
-.settings-box.opened {
+.settings-box.opened, .help-box.opened {
     visibility: visible;
     opacity: 1;
 }
@@ -176,10 +179,30 @@ input::-webkit-inner-spin-button {
     width: 100%;
 }
 
-.close-settings-btn {
+.close-settings-btn, .close-help-btn {
     width: 2rem;
     height: 2rem;
     margin: 0 0 3rem auto;
     cursor: pointer;
     font-size: 3rem;
+}
+
+.help-content {
+    font-size: 1.4rem;
+    text-align: justify;
+    hyphens: auto;
+    color: lightgray;
+}
+
+.open-help-btn {
+    border: 1px solid;
+    border-radius: 0.5rem;
+    text-transform: uppercase;
+    cursor: pointer;
+    width: max-content;
+    font-size: 1rem;
+    letter-spacing: 2px;
+    font-weight: bold;
+    padding: 0.5rem 1rem;
+    margin: 2rem auto;
 }

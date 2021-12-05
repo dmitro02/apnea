@@ -203,9 +203,9 @@ class UI {
 
     renderSessionResult = (max, avrg) => {
         if (!max || !avrg) {
-            this.#showElement(this.#getSessionResult(), false)
+            this.#displayElement(this.#getSessionResult(), false)
         } else {
-            this.#showElement(this.#getSessionResult())
+            this.#displayElement(this.#getSessionResult())
             this.#getSessionResultMax().innerText = this.#formatTime(max)
             this.#getSessionResultAvrg().innerText =  this.#formatTime(avrg)
         }
@@ -228,7 +228,7 @@ class UI {
         nr.addEventListener('change', this.#validateNumberOfRounds)
         cd.addEventListener('change', this.#validateCountdownDuration)
 
-        this.#getSettingsPanel().classList.add('opened')
+        this.#makeVisible(this.#getSettingsPanel())
     }
 
     #handleSaveSettings = () => {
@@ -245,10 +245,18 @@ class UI {
 
         this.app.sound.setVolume(v)
 
-        this.#getSettingsPanel().classList.remove('opened')
+        this.#makeVisible(this.#getSettingsPanel(), false)
 
         this.reset()
     }
+
+    #renderHelpPanel = () => {
+        this.#makeVisible(this.#getHelpPanel())
+        this.#makeVisible(this.#getSettingsPanel(), false)
+    }
+
+    #handleCloseHelp = () => 
+        this.#makeVisible(this.#getHelpPanel(), false)
     
     onRoundStarted = (numberOfRounds, roundNumber) => {
         this.renderRoundIndicator(numberOfRounds, roundNumber)
@@ -286,6 +294,30 @@ class UI {
         this.renderRecordBtn(true)
         this.app.record() 
     }
+
+    #validateRoundDurationMin = (e) =>
+    this.#validateTimeValue(e, this.config.getRoundDurationMin())
+
+    #validateRoundDurationSec = (e) =>
+        this.#validateTimeValue(e, this.config.getRoundDurationSec())
+
+    #validateCountdownDuration = (e) =>
+        this.#validateTimeValue(e, this.config.countdownDuration)
+
+    #validateNumberOfRounds = (e) => {
+        const value = e.target.value
+        if (value === '' || value < 1) {
+            e.target.value = this.config.numberOfRounds
+        }
+    }
+
+    #validateTimeValue = (e, fallbackValue) => {
+        const value = e.target.value
+        if (value === '' || value < 0 || value > 59) {
+            e.target.value = fallbackValue
+        }
+    }
+
     reset = () => {
         this.renderRoundIndicator()
         this.renderTimeIndicator()
@@ -297,11 +329,36 @@ class UI {
     
     init = () => {
         this.reset()
-        this.#getOpenSettingsBtn()
-            .addEventListener('click', this.renderSettingsPanel)
-        this.#getCloseSettingsBtn()
-            .addEventListener('click', this.#handleSaveSettings)
+
+        this.#addClickListener(this.#getOpenSettingsBtn(), this.renderSettingsPanel)
+        this.#addClickListener(this.#getCloseSettingsBtn(), this.#handleSaveSettings)
+        this.#addClickListener(this.#getOpenHelpBtn(), this.#renderHelpPanel)
+        this.#addClickListener(this.#getCloseHelpBtn(), this.#handleCloseHelp)
+
         window.addEventListener('keyup', this.#handlePressSpaceBtn)
+    }
+
+    #addClickListener = (el, handler) => el.addEventListener('click', handler)
+
+    #getElement = (selector, parent) => {
+        return (parent || document).querySelector(selector)
+    }
+
+    #formatTime = (elapsedSec) => {
+        let min = Math.floor(elapsedSec / 60)
+        let sec = elapsedSec - min * 60
+        return this.#formatTimeValue(min) + ':' + this.#formatTimeValue(sec)
+    }
+    
+    #formatTimeValue = (val) => val < 10 ? '0' + val : val
+
+    #displayElement = (el, isDisplayed = true) => 
+        el.style.display = isDisplayed ? 'block' : 'none'
+
+    #makeVisible = (el, isVisible = true) => {
+        isVisible
+            ? el.classList.add("opened")
+            : el.classList.remove("opened")
     }
 
     #getStartBtn = () => this.#getElement('.start-record-btn')
@@ -324,45 +381,9 @@ class UI {
     #getOpenSettingsBtn = () => this.#getElement('.open-settings-btn')
     #getCloseSettingsBtn = () => this.#getElement('.close-settings-btn')
     #getSettingsPanel = () => this.#getElement('.settings-box')
-    #getMainPanel = () => this.#getElement('.main-box')
-
-    #getElement = (selector, parent) => {
-        return (parent || document).querySelector(selector)
-    }
-
-    #formatTime = (elapsedSec) => {
-        let min = Math.floor(elapsedSec / 60)
-        let sec = elapsedSec - min * 60
-        return this.#formatTimeValue(min) + ':' + this.#formatTimeValue(sec)
-    }
-    
-    #formatTimeValue = (val) => val < 10 ? '0' + val : val
-
-    #showElement = (el, isDisplayed = true) => 
-        el.style.display = isDisplayed ? 'block' : 'none'
-
-    #validateRoundDurationMin = (e) =>
-        this.#validateTimeValue(e, this.config.getRoundDurationMin())
-
-    #validateRoundDurationSec = (e) =>
-        this.#validateTimeValue(e, this.config.getRoundDurationSec())
-
-    #validateCountdownDuration = (e) =>
-        this.#validateTimeValue(e, this.config.countdownDuration)
-
-    #validateNumberOfRounds = (e) => {
-        const value = e.target.value
-        if (value === '' || value < 1) {
-            e.target.value = this.config.numberOfRounds
-        }
-    }
-
-    #validateTimeValue = (e, fallbackValue) => {
-        const value = e.target.value
-        if (value === '' || value < 0 || value > 59) {
-            e.target.value = fallbackValue
-        }
-    }
+    #getOpenHelpBtn = () => this.#getElement('.open-help-btn')
+    #getCloseHelpBtn = () => this.#getElement('.close-help-btn')
+    #getHelpPanel = () => this.#getElement('.help-box')
 } 
 
 class Sound {
