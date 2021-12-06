@@ -222,7 +222,7 @@ class UI {
         nr.addEventListener('change', this.validateNumberOfRounds)
         cd.addEventListener('change', this.validateCountdownDuration)
 
-        this.makeVisible(this.getSettingsPanel())
+        this.showPanel(this.getSettingsPanel())
     }
 
     handleSaveSettings = () => {
@@ -239,18 +239,18 @@ class UI {
 
         this.app.sound.setVolume(v)
 
-        this.makeVisible(this.getSettingsPanel(), false)
+        this.showPanel(this.getSettingsPanel(), false)
 
         this.reset()
     }
 
     renderHelpPanel = () => {
-        this.makeVisible(this.getHelpPanel())
-        this.makeVisible(this.getSettingsPanel(), false)
+        this.showPanel(this.getHelpPanel())
+        this.showPanel(this.getSettingsPanel(), false)
     }
 
     handleCloseHelp = () => 
-        this.makeVisible(this.getHelpPanel(), false)
+        this.showPanel(this.getHelpPanel(), false)
     
     onRoundStarted = (numberOfRounds, roundNumber) => {
         this.renderRoundIndicator(numberOfRounds, roundNumber)
@@ -266,6 +266,7 @@ class UI {
         this.renderStartBtn()
         this.renderResetBtn()
         this.renderSessionResult(max, avrg)
+        this.toggleVisibility(this.getOpenSettingsBtn())
     }
 
     handlePressSpaceBtn = (e) => {
@@ -281,6 +282,7 @@ class UI {
         this.renderSessionResult()
         this.renderRecordBtn()
         this.renderStopBtn()
+        this.toggleVisibility(this.getOpenSettingsBtn())
         this.app.start()
     }
 
@@ -357,10 +359,18 @@ class UI {
     displayElement = (el, isDisplayed = true) => 
         el.style.display = isDisplayed ? 'block' : 'none'
 
-    makeVisible = (el, isVisible = true) => {
-        isVisible
+    showPanel = (el, isOpened = true) => {
+        isOpened
             ? el.classList.add("opened")
             : el.classList.remove("opened")
+    }
+
+    toggleVisibility = (el) => {
+        if(el.style.visibility == 'visible' || el.style.visibility == '') {
+            el.style.visibility = 'hidden'
+        } else {
+            el.style.visibility = 'visible'
+        }
     }
 
     beepShort = () => this.app.sound.beepShort.play()
