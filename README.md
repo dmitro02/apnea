@@ -5,4 +5,4 @@ https://youtu.be/eXBZUee4EpY?list=PLVDEz46YIYvoWZJeYq39BlDhDblFjkQva&t=224
 
 ### To-Do
 - custom button elements
-- app width in mobile Firefox
+- adapt app width for Firefox (desktop & mobile)

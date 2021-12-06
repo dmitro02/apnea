@@ -76,7 +76,6 @@ class App {
         
         this.isRunning = true
 
-        this.sound.beepShort.play()
         this.records = []
 
         const timerConfig = {
@@ -116,7 +115,6 @@ class App {
             this.currentRound.elapsed
         )
         this.isCurrentRoundRecorded = true
-        this.sound.beepShort.play()
         this.records.push(this.currentRound.elapsed)
     }
 
@@ -278,6 +276,7 @@ class UI {
     }
     
     handleClickOnStartBtn = () => { 
+        this.beepShort()
         this.renderSessionResults()
         this.renderSessionResult()
         this.renderRecordBtn()
@@ -285,8 +284,13 @@ class UI {
         this.app.start()
     }
 
-    handleClickOnStopBtn = () => this.app.stop()
+    handleClickOnStopBtn = () => {
+        this.beepShort()
+        this.app.stop()
+    }
+
     handleClickOnRecordBtn = () => {
+        this.beepShort()
         this.renderRecordBtn(true)
         this.app.record() 
     }
@@ -358,6 +362,8 @@ class UI {
             ? el.classList.add("opened")
             : el.classList.remove("opened")
     }
+
+    beepShort = () => this.app.sound.beepShort.play()
 
     getStartBtn = () => this.getElement('.start-record-btn')
     getStopBtn = () => this.getElement('.stop-reset-btn')
