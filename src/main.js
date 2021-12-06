@@ -120,10 +120,6 @@ class App {
         this.records.push(this.currentRound.elapsed)
     }
 
-    onPressSpaceBar() {
-        this.isRunning ? this.record() : this.start()
-    }
-
     get avrgHoldingTime() { 
         const total = this.records.reduce((p, c) => p + c, 0)
         return Math.round(total / this.records.length)
@@ -277,7 +273,7 @@ class UI {
     handlePressSpaceBtn = (e) => {
         if (e.keyCode === 32) {
             e.preventDefault()
-            this.app.onPressSpaceBar()
+            this.getStartBtn().click()
         }
     }
     

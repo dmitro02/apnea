@@ -14,6 +14,7 @@ body {
     flex-direction: column;
     align-items: center;
     width: 400px;
+    margin: auto;
 }
 
 .main-box, .settings-box, .help-box {
@@ -26,8 +27,6 @@ body {
 }
 
 .settings-box, .help-box {
-    font-size: 1.6rem;
-    width: 23rem;
     visibility: hidden;
     opacity: 0;
     position: absolute;
@@ -35,11 +34,13 @@ body {
 }
 
 .settings-box {
+    font-size: 1.6rem;
     transition: visibility 0s, opacity 0.3s linear;
 }
 
 .help-box {
     overflow: auto;
+    padding: 1rem 1.5rem 1rem 1rem;
 }
 
 .settings-box.opened, .help-box.opened {
@@ -189,10 +190,14 @@ input::-webkit-inner-spin-button {
 }
 
 .help-content {
-    font-size: 1.5rem;
+    font-size: 1rem;
     text-align: left;
     color: lightgray;
     overflow: auto;
+}
+
+.help-content li {
+    margin: 6px 0;
 }
 
 .help-content p:first-child {
