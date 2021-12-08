@@ -1,5 +1,5 @@
-html, body {
-    height: 100%;
+*, *:before, *:after {
+    box-sizing: border-box;
 }
 
 body {
@@ -7,23 +7,22 @@ body {
     color: white;
     font-family: sans-serif;
     margin: 0;
+    overflow: hidden;
 }
 
 .main-container {
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: 400px;
+    width: max-content;
     margin: auto;
 }
 
 .main-box, .settings-box, .help-box {
-    box-sizing: border-box;
     text-align: center;
     font-family: sans-serif;
     padding: 1rem 1.5rem;
-    height: 100%;
-    width: 100%;
+    width: 400px;
 }
 
 .settings-box, .help-box {
@@ -136,7 +135,7 @@ button {
 }
 
 input[type="number"] {
-    width: 1.7rem;
+    width: 2rem;
     background-color: black;
     color: white;
     border: none;
@@ -170,7 +169,6 @@ input::-webkit-inner-spin-button {
     height: 2rem;
     border-top: 4px solid;
     border-bottom: 4px solid;
-    box-sizing: border-box;
     display: flex;
     align-items: center;
     cursor: pointer;
@@ -190,10 +188,17 @@ input::-webkit-inner-spin-button {
 }
 
 .help-content {
-    font-size: 1rem;
+    font-size: 1.3rem;
     text-align: left;
     color: lightgray;
     overflow: auto;
+    border-top: 1px solid gray;
+    border-bottom: 1px solid gray;
+    padding-top: 1rem;
+}
+
+.help-content ol {
+    padding-left: 1.4rem;
 }
 
 .help-content li {
@@ -202,12 +207,11 @@ input::-webkit-inner-spin-button {
 
 .help-content p:first-child {
     margin-top: 0;
-    padding-top: 1rem;
-    border-top: 1px solid gray;
 }
 
 .help-content a, .help-content a:visited {
-    color: cadetblue;
+    color: white;
+    font-weight: bold;
 }
 
 .open-help-btn {
@@ -220,4 +224,10 @@ input::-webkit-inner-spin-button {
     letter-spacing: 2px;
     padding: 0.5rem 1rem;
     margin: 2rem auto;
+}
+
+.apnea-app-version {
+    text-align: center;
+    font-size: 1rem;
+    color: white;
 }
