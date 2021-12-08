@@ -21,7 +21,7 @@ const isLocalhost = Boolean(
 function register(config) {
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      const swUrl = `./service-worker.js`;
+      const swUrl = `./static/service-worker.js`;
       registerValidSW(swUrl, config);
       // if (isLocalhost) {
       //   // This is running on localhost. Let's check if a service worker still exists or not.
