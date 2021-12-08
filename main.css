@@ -1,0 +1,233 @@
+*, *:before, *:after {
+    box-sizing: border-box;
+}
+
+body {
+    background-color: black;
+    color: white;
+    font-family: sans-serif;
+    margin: 0;
+    overflow: hidden;
+}
+
+.main-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: max-content;
+    margin: auto;
+}
+
+.main-box, .settings-box, .help-box {
+    text-align: center;
+    font-family: sans-serif;
+    padding: 1rem 1.5rem;
+    width: 400px;
+}
+
+.settings-box, .help-box {
+    visibility: hidden;
+    opacity: 0;
+    position: absolute;
+    background-color: black;
+}
+
+.settings-box {
+    font-size: 1.6rem;
+    transition: visibility 0s, opacity 0.3s linear;
+}
+
+.help-box {
+    overflow: auto;
+    padding: 1rem 1.5rem 1rem 1rem;
+}
+
+.settings-box.opened, .help-box.opened {
+    visibility: visible;
+    opacity: 1;
+}
+
+.round-indicator {
+    font-size: 5rem;
+}
+
+.time-indicator {    
+    font-size: 8.8rem;
+    text-align: left;
+}
+
+.session-records {
+    display: flex;
+    max-width: fit-content;
+    margin: 2rem 0 0 1.2rem;
+    font-size: 2rem;
+}
+
+.session-result {
+    margin: 1.5rem auto;
+    max-width: fit-content;
+    border-top: 1px dashed;
+    border-bottom: 1px dashed;
+    padding: 0.6rem 0.2rem;
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.session-result > div {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+}
+
+.session-result > div > div:first-child {
+    margin-right: 1rem;
+}
+
+.session-records-left {
+    margin-right: 1rem;
+}
+
+button, .button {
+    -webkit-tap-highlight-color: transparent;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+button {
+    width: 10.8rem;
+    height: 5rem;
+    cursor: pointer;
+    font-size: 1.3rem;
+    text-transform: uppercase;
+    font-weight: bold;
+    border-radius: 3rem;
+}
+
+.session-btns {
+    display: flex;
+    justify-content: space-between;
+}
+
+.round-record {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.round-number {
+    width: 3rem;
+    margin-right: 0.6rem;
+    text-align: right;
+}
+
+.settings-input {
+    display: flex;
+    justify-content: space-between;
+    white-space: nowrap;
+    border-top: 1px solid gray;
+    padding: 1rem 3px;
+}
+
+.settings-input.last {
+    border-bottom: 1px solid gray;
+}
+
+input[type="number"] {
+    width: 2rem;
+    background-color: black;
+    color: white;
+    border: none;
+    font-size: 1.5rem;
+    text-align: right;
+    -moz-appearance: textfield;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.min-sec-group, .top-bar {
+    display: flex;
+}
+
+.top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.top-bar div:first-child {
+    width: 2rem;
+}
+
+.open-settings-btn {
+    width: 2rem;
+    height: 2rem;
+    border-top: 4px solid;
+    border-bottom: 4px solid;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.open-settings-btn div {
+    border: 2px solid;
+    width: 100%;
+}
+
+.close-settings-btn, .close-help-btn {
+    width: 2rem;
+    height: 2rem;
+    margin: 0 0 3rem auto;
+    cursor: pointer;
+    font-size: 3rem;
+}
+
+.help-content {
+    font-size: 1.3rem;
+    text-align: left;
+    color: lightgray;
+    overflow: auto;
+    border-top: 1px solid gray;
+    border-bottom: 1px solid gray;
+    padding-top: 1rem;
+}
+
+.help-content ol {
+    padding-left: 1.4rem;
+}
+
+.help-content li {
+    margin: 6px 0;
+}
+
+.help-content p:first-child {
+    margin-top: 0;
+}
+
+.help-content a, .help-content a:visited {
+    color: white;
+    font-weight: bold;
+}
+
+.open-help-btn {
+    border: 2px solid;
+    border-radius: 0.5rem;
+    text-transform: uppercase;
+    cursor: pointer;
+    width: max-content;
+    font-size: 1.2rem;
+    letter-spacing: 2px;
+    padding: 0.5rem 1rem;
+    margin: 2rem auto;
+}
+
+.apnea-app-version {
+    text-align: center;
+    font-size: 1rem;
+    color: white;
+}
