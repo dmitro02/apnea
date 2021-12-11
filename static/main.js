@@ -5,16 +5,14 @@ class Timer {
             onInterval, 
             countdownDuration = 0, 
             interval = 1000,
-            playShortBeep,
-            playLongBeep,
+            beep,
          } = config
 
         this.duration = duration
         this.interval = interval
         this.countdownDuration = countdownDuration
         this.onInterval = onInterval
-        this.playShortBeep = playShortBeep
-        this.playLongBeep = playLongBeep
+        this.beep = beep
         this.elapsed = 0
     }
     isInterrupted = false
@@ -50,10 +48,8 @@ class Timer {
     }
     beepCountdown() {
         const timeLeft = this.duration - this.elapsed
-        if (timeLeft === 0) {
-            this.playLongBeep && this.playLongBeep() 
-        } else if (timeLeft > 0 && timeLeft < this.countdownDuration) {
-            this.playShortBeep && this.playShortBeep()
+        if (timeLeft > 0 && timeLeft < this.countdownDuration) {
+            this.beep && this.beep()
         }
     }
 }
@@ -71,6 +67,11 @@ class App {
         this.sound = new Sound(this.config.volume)
     }
 
+    init = () => {
+        this.ui.init()
+        this.registerServiceWorker()
+    }
+
     async start() {
         if (this.isRunning) return
         
@@ -82,8 +83,7 @@ class App {
             duration: this.config.roundDuration, 
             onInterval: this.ui.renderTimeIndicator, 
             countdownDuration: this.config.countdownDuration, 
-            playShortBeep: () => this.sound.beepShort.play(),
-            playLongBeep: () => this.sound.beepLong.play(),
+            beep: () => this.sound.beepShort.play(),
         }
 
         for (let i = 1; i <= this.config.numberOfRounds; i++) {  
@@ -94,7 +94,8 @@ class App {
             this.ui.onRoundStarted(i)
 
             const isInterrupted = await this.currentRound.start()
-            this.record(i)
+            this.record()
+            this.sound.beepLong.play()
             if (isInterrupted) break
         }
 
@@ -125,6 +126,14 @@ class App {
 
     get maxHoldingTime() { 
         return Math.max(...this.records)
+    }
+
+    registerServiceWorker = () => {
+        if ("serviceWorker" in navigator) {
+            window.addEventListener("load", () =>
+                navigator.serviceWorker.register("./serviceWorker.js")
+            )
+        }
     }
 }
 
@@ -480,13 +489,4 @@ class Config {
     getVolumeInteger = () => this.volume * 100
 }
 
-new App().ui.init()
-
-if ("serviceWorker" in navigator) {
-    window.addEventListener("load", function() {
-      navigator.serviceWorker
-        .register("./serviceWorker.js")
-        .then(res => console.log("service worker registered"))
-        .catch(err => console.log("service worker not registered", err))
-    })
-}
+new App().init()
