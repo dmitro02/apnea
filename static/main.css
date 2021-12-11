@@ -16,6 +16,8 @@ body {
     align-items: center;
     width: max-content;
     margin: auto;
+    height: 100vh;
+    overflow: auto;
 }
 
 .main-box, .settings-box, .help-box {
@@ -26,25 +28,11 @@ body {
 }
 
 .settings-box, .help-box {
-    visibility: hidden;
-    opacity: 0;
-    position: absolute;
-    background-color: black;
+    display: none;
 }
 
 .settings-box {
     font-size: 1.6rem;
-    transition: visibility 0s, opacity 0.3s linear;
-}
-
-.help-box {
-    overflow: auto;
-    padding: 1rem 1.5rem 1rem 1rem;
-}
-
-.settings-box.opened, .help-box.opened {
-    visibility: visible;
-    opacity: 1;
 }
 
 .round-indicator {
@@ -191,14 +179,13 @@ input::-webkit-inner-spin-button {
     font-size: 1.3rem;
     text-align: left;
     color: lightgray;
-    overflow: auto;
     border-top: 1px solid gray;
     border-bottom: 1px solid gray;
     padding-top: 1rem;
 }
 
 .help-content ol {
-    padding-left: 1.4rem;
+    /* padding-left: 1.5rem; */
 }
 
 .help-content li {

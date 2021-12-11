@@ -134,6 +134,24 @@ class UI {
         this.config = app.config
     }
 
+    displayMainPanel = () => {
+        this.getMainPanel().style.display = 'block'
+        this.getSettingsPanel().style.display = 'none'
+        this.getHelpPanel().style.display = 'none'
+    }
+
+    displaySettingsPanel = () => {
+        this.getMainPanel().style.display = 'none'
+        this.getSettingsPanel().style.display = 'block'
+        this.getHelpPanel().style.display = 'none'
+    }
+
+    displayHelpPanel = () => {
+        this.getMainPanel().style.display = 'none'
+        this.getSettingsPanel().style.display = 'none'
+        this.getHelpPanel().style.display = 'block'
+    }
+
     renderTimeIndicator = (elapsedSec = 0) => {
         const timeLeftSec = this.config.roundDuration === elapsedSec 
             ? this.config.roundDuration
@@ -197,9 +215,9 @@ class UI {
 
     renderSessionResult = (max, avrg) => {
         if (!max || !avrg) {
-            this.displayElement(this.getSessionResult(), false)
+            this.getSessionResult().style.display = "none"
         } else {
-            this.displayElement(this.getSessionResult())
+            this.getSessionResult().style.display = "block"
             this.getSessionResultMax().innerText = this.formatTime(max)
             this.getSessionResultAvrg().innerText =  this.formatTime(avrg)
         }
@@ -222,7 +240,7 @@ class UI {
         nr.addEventListener('change', this.validateNumberOfRounds)
         cd.addEventListener('change', this.validateCountdownDuration)
 
-        this.showPanel(this.getSettingsPanel())
+        this.displaySettingsPanel()
     }
 
     handleSaveSettings = () => {
@@ -239,18 +257,10 @@ class UI {
 
         this.app.sound.setVolume(v)
 
-        this.showPanel(this.getSettingsPanel(), false)
+        this.displayMainPanel()
 
         this.reset()
     }
-
-    renderHelpPanel = () => {
-        this.showPanel(this.getHelpPanel())
-        this.showPanel(this.getSettingsPanel(), false)
-    }
-
-    handleCloseHelp = () => 
-        this.showPanel(this.getHelpPanel(), false)
     
     onRoundStarted = (numberOfRounds, roundNumber) => {
         this.renderRoundIndicator(numberOfRounds, roundNumber)
@@ -266,7 +276,7 @@ class UI {
         this.renderStartBtn()
         this.renderResetBtn()
         this.renderSessionResult(max, avrg)
-        this.toggleVisibility(this.getOpenSettingsBtn())
+        this.getOpenSettingsBtn().style.visibility = "visible"
     }
 
     handlePressSpaceBtn = (e) => {
@@ -282,7 +292,7 @@ class UI {
         this.renderSessionResult()
         this.renderRecordBtn()
         this.renderStopBtn()
-        this.toggleVisibility(this.getOpenSettingsBtn())
+        this.getOpenSettingsBtn().style.visibility = 'hidden'
         this.app.start()
     }
 
@@ -334,8 +344,8 @@ class UI {
 
         this.addClickListener(this.getOpenSettingsBtn(), this.renderSettingsPanel)
         this.addClickListener(this.getCloseSettingsBtn(), this.handleSaveSettings)
-        this.addClickListener(this.getOpenHelpBtn(), this.renderHelpPanel)
-        this.addClickListener(this.getCloseHelpBtn(), this.handleCloseHelp)
+        this.addClickListener(this.getOpenHelpBtn(), this.displayHelpPanel)
+        this.addClickListener(this.getCloseHelpBtn(), this.displayMainPanel)
 
         window.addEventListener('keyup', this.handlePressSpaceBtn)
     }
@@ -356,25 +366,9 @@ class UI {
     
     formatTimeValue = (val) => val < 10 ? '0' + val : val
 
-    displayElement = (el, isDisplayed = true) => 
-        el.style.display = isDisplayed ? 'block' : 'none'
-
-    showPanel = (el, isOpened = true) => {
-        isOpened
-            ? el.classList.add("opened")
-            : el.classList.remove("opened")
-    }
-
-    toggleVisibility = (el) => {
-        if(el.style.visibility == 'visible' || el.style.visibility == '') {
-            el.style.visibility = 'hidden'
-        } else {
-            el.style.visibility = 'visible'
-        }
-    }
-
     beepShort = () => this.app.sound.beepShort.play()
 
+    getMainPanel = () => this.getElement('.main-box')
     getStartBtn = () => this.getElement('.start-record-btn')
     getStopBtn = () => this.getElement('.stop-reset-btn')
     getTimeIndicator = () => this.getElement('.time-indicator')
