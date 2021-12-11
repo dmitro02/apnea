@@ -1,11 +1,11 @@
 *, *:before, *:after {
     box-sizing: border-box;
+    font-family: 'Courier New', monospace;
 }
 
 body {
     background-color: black;
     color: white;
-    font-family: sans-serif;
     margin: 0;
     overflow: hidden;
 }
@@ -22,7 +22,6 @@ body {
 
 .main-box, .settings-box, .help-box {
     text-align: center;
-    font-family: sans-serif;
     padding: 1rem 1.5rem;
     width: 400px;
 }
@@ -32,23 +31,28 @@ body {
 }
 
 .settings-box {
-    font-size: 1.6rem;
+    font-size: 1.7rem;
 }
 
 .round-indicator {
-    font-size: 5rem;
+    font-size: 80px;
 }
 
 .time-indicator {    
-    font-size: 8.8rem;
-    text-align: left;
+    font-size: 7rem;
+    text-align: center;
+    font-weight: bolder;
+    border: 2px solid lightgray;
+    border-radius: 1rem;
+    padding-top: 0.5rem;
+    margin-bottom: 1rem;
 }
 
 .session-records {
     display: flex;
     max-width: fit-content;
-    margin: 2rem 0 0 1.2rem;
     font-size: 2rem;
+    margin-top: 1.5rem;
 }
 
 .session-result {
@@ -74,7 +78,11 @@ body {
 }
 
 .session-records-left {
-    margin-right: 1rem;
+    margin-right: 2rem;
+}
+
+.round-number {
+    font-weight: bold;
 }
 
 button, .button {
@@ -88,7 +96,7 @@ button {
     width: 10.8rem;
     height: 5rem;
     cursor: pointer;
-    font-size: 1.3rem;
+    font-size: 1.5rem;
     text-transform: uppercase;
     font-weight: bold;
     border-radius: 3rem;
@@ -128,6 +136,7 @@ input[type="number"] {
     color: white;
     border: none;
     font-size: 1.5rem;
+    font-weight: bold;
     text-align: right;
     -moz-appearance: textfield;
 }
@@ -136,6 +145,10 @@ input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
     -webkit-appearance: none;
     margin: 0;
+}
+
+.min-sec-group {
+    font-weight: bold;
 }
 
 .min-sec-group, .top-bar {
@@ -176,7 +189,7 @@ input::-webkit-inner-spin-button {
 }
 
 .help-content {
-    font-size: 1.3rem;
+    font-size: 0.8rem;
     text-align: left;
     color: lightgray;
     border-top: 1px solid gray;
@@ -184,8 +197,8 @@ input::-webkit-inner-spin-button {
     padding-top: 1rem;
 }
 
-.help-content ol {
-    /* padding-left: 1.5rem; */
+.help-content * {
+    font-family: Verdana, sans-serif;
 }
 
 .help-content li {
@@ -211,10 +224,11 @@ input::-webkit-inner-spin-button {
     letter-spacing: 2px;
     padding: 0.5rem 1rem;
     margin: 2rem auto;
+    font-weight: bold;
 }
 
 .apnea-app-version {
     text-align: center;
-    font-size: 1rem;
+    font-size: 0.6rem;
     color: white;
 }
