@@ -1,6 +1,6 @@
 *, *:before, *:after {
     box-sizing: border-box;
-    font-family: 'Courier New', monospace;
+    font-family: Verdana, sans-serif;
 }
 
 body {
@@ -18,12 +18,14 @@ body {
     margin: auto;
     height: 100vh;
     overflow: auto;
+    padding: 0.5rem 0;
 }
 
 .main-box, .settings-box, .help-box {
     text-align: center;
     padding: 1rem 1.5rem;
-    width: 400px;
+    width: 360px;
+    height: inherit;
 }
 
 .settings-box, .help-box {
@@ -31,28 +33,33 @@ body {
 }
 
 .settings-box {
-    font-size: 1.7rem;
+    font-size: 1.4rem;
 }
 
 .round-indicator {
-    font-size: 80px;
+    font-size: 3.5rem;
+    font-weight: bold;
 }
 
 .time-indicator {    
-    font-size: 7rem;
+    font-size: 5rem;
     text-align: center;
     font-weight: bolder;
     border: 2px solid lightgray;
     border-radius: 1rem;
-    padding-top: 0.5rem;
-    margin-bottom: 1rem;
+    margin: 1rem 0 1.2rem;
+    width: 100%;
 }
 
 .session-records {
     display: flex;
-    max-width: fit-content;
-    font-size: 2rem;
+    font-size: 1.8rem;
     margin-top: 1.5rem;
+    column-gap: 1.6rem;
+}
+
+.session-records > div {
+    width: 50%;
 }
 
 .session-result {
@@ -77,12 +84,9 @@ body {
     margin-right: 1rem;
 }
 
-.session-records-left {
-    margin-right: 2rem;
-}
-
 .round-number {
     font-weight: bold;
+    margin-right: 0.6rem;
 }
 
 button, .button {
@@ -93,13 +97,13 @@ button, .button {
 }
 
 button {
-    width: 10.8rem;
+    width: 49%;
     height: 5rem;
     cursor: pointer;
-    font-size: 1.5rem;
+    font-size: 1.4rem;
     text-transform: uppercase;
     font-weight: bold;
-    border-radius: 3rem;
+    border-radius: 1rem;
 }
 
 .session-btns {
@@ -109,13 +113,7 @@ button {
 
 .round-record {
     display: flex;
-    justify-content: flex-end;
-}
-
-.round-number {
-    width: 3rem;
-    margin-right: 0.6rem;
-    text-align: right;
+    justify-content: center;
 }
 
 .settings-input {
@@ -131,11 +129,11 @@ button {
 }
 
 input[type="number"] {
-    width: 2rem;
+    width: 2.5rem;
     background-color: black;
     color: white;
     border: none;
-    font-size: 1.5rem;
+    font-size: 1.6rem;
     font-weight: bold;
     text-align: right;
     -moz-appearance: textfield;
@@ -153,6 +151,7 @@ input::-webkit-inner-spin-button {
 
 .min-sec-group, .top-bar {
     display: flex;
+    align-items: baseline;
 }
 
 .top-bar {
@@ -189,16 +188,12 @@ input::-webkit-inner-spin-button {
 }
 
 .help-content {
-    font-size: 0.8rem;
+    font-size: 1.2rem;
     text-align: left;
     color: lightgray;
     border-top: 1px solid gray;
     border-bottom: 1px solid gray;
     padding-top: 1rem;
-}
-
-.help-content * {
-    font-family: Verdana, sans-serif;
 }
 
 .help-content li {
@@ -229,6 +224,6 @@ input::-webkit-inner-spin-button {
 
 .apnea-app-version {
     text-align: center;
-    font-size: 0.6rem;
+    font-size: 0.8rem;
     color: white;
 }
