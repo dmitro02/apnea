@@ -277,13 +277,16 @@ class UI {
         this.getOpenSettingsBtn().style.visibility = "visible"
     }
 
-    handlePressSpaceBtn = (e) => {
-        if (e.keyCode === 32) {
-            e.preventDefault()
-            this.getStartBtn().click()
+    handlePressKey = (e) => {
+        if (e.keyCode === 27) {  // Escape
+            if (this.isSettingsView) {
+                this.getCloseSettingsBtn().click()
+            } else if (this.isHelpView) {
+                this.getCloseHelpBtn().click()
+            }
         }
     }
-    
+
     handleClickOnStartBtn = () => { 
         this.beepShort()
         this.renderSessionResults()
@@ -345,7 +348,7 @@ class UI {
         this.addClickListener(this.getOpenHelpBtn(), this.displayHelpPanel)
         this.addClickListener(this.getCloseHelpBtn(), this.displayMainPanel)
 
-        window.addEventListener('keyup', this.handlePressSpaceBtn)
+        window.addEventListener('keyup', this.handlePressKey)
     }
 
     addClickListener = (el, handler) => el.addEventListener('click', handler)
@@ -365,6 +368,9 @@ class UI {
     formatTimeValue = (val) => val < 10 ? '0' + val : val
 
     beepShort = () => this.app.sound.beepShort.play()
+
+    get isHelpView() { return this.getHelpPanel().style.display === 'block' }
+    get isSettingsView() { return this.getSettingsPanel().style.display === 'block' }
 
     getMainPanel = () => this.getElement('.main-box')
     getStartBtn = () => this.getElement('.start-record-btn')
