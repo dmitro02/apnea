@@ -1,11 +1,5 @@
 class Timer {
-    constructor(config) {
-        const { 
-            duration, 
-            onInterval, 
-            interval = 1000
-         } = config
-
+    constructor(duration, onInterval, interval = 1000) {
         this.duration = duration
         this.interval = interval
         this.onInterval = onInterval
@@ -68,15 +62,11 @@ class App {
 
         this.records = []
 
-        const timerConfig = {
-            duration: this.config.roundDuration, 
-            onInterval: this.onInterval
-        }
-
         for (let i = 1; i <= this.config.numberOfRounds; i++) {  
             this.currentRoundNumber = i
             this.isCurrentRoundRecorded = false
-            this.currentRound = new Timer(timerConfig)
+            this.currentRound = new Timer(
+                this.config.roundDuration, this.onInterval)
 
             this.ui.onRoundStarted(i)
 
