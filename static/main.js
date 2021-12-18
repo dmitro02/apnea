@@ -3,16 +3,12 @@ class Timer {
         const { 
             duration, 
             onInterval, 
-            countdownDuration = 0, 
-            interval = 1000,
-            beep,
+            interval = 1000
          } = config
 
         this.duration = duration
         this.interval = interval
-        this.countdownDuration = countdownDuration
         this.onInterval = onInterval
-        this.beep = beep
         this.elapsed = 0
     }
     isInterrupted = false
@@ -29,7 +25,6 @@ class Timer {
                 } else {
                     this.elapsed = Math.floor((Date.now() - start) / 1000)
                     this.onInterval && this.onInterval(this.elapsed)
-                    this.beepCountdown()
         
                     if (Date.now() >= end) {
                         resolve(false)
@@ -45,12 +40,6 @@ class Timer {
             }
             setTimeout(step, this.interval)
         })
-    }
-    beepCountdown() {
-        const timeLeft = this.duration - this.elapsed
-        if (timeLeft > 0 && timeLeft < this.countdownDuration) {
-            this.beep && this.beep()
-        }
     }
 }
 
@@ -81,9 +70,7 @@ class App {
 
         const timerConfig = {
             duration: this.config.roundDuration, 
-            onInterval: this.ui.renderTimeIndicator, 
-            countdownDuration: this.config.countdownDuration, 
-            beep: () => this.sound.beepShort.play(),
+            onInterval: this.onInterval
         }
 
         for (let i = 1; i <= this.config.numberOfRounds; i++) {  
@@ -117,6 +104,18 @@ class App {
         )
         this.isCurrentRoundRecorded = true
         this.records.push(this.currentRound.elapsed)
+    }
+
+    onInterval = (elapsed) => {
+        this.ui.renderTimeIndicator(elapsed)
+
+        const { roundDuration, countdownDuration } = this.config
+        if (countdownDuration && countdownDuration < roundDuration) {
+            const timeLeft = roundDuration - elapsed
+            if (timeLeft > 0 && timeLeft <= countdownDuration) {
+                this.sound.beepShort.play()
+            }
+        }
     }
 
     get avrgHoldingTime() { 
@@ -480,7 +479,7 @@ class Config {
     }
 
     restoreFromLocalStorage = (itemName, defaultValue) =>
-        localStorage.getItem(itemName) || defaultValue
+        parseFloat(localStorage.getItem(itemName)) || defaultValue
 
     getRoundDurationMin = () => Math.floor(this.roundDuration / 60)
 
