@@ -104,6 +104,9 @@ class App {
             const timeLeft = roundDuration - elapsed
             if (timeLeft > 0 && timeLeft <= countdownDuration) {
                 this.sound.beepShort.play()
+                this.ui.getTimeIndicator().classList.add('shadow-pulse')
+            } else {    
+                this.ui.getTimeIndicator().classList.remove('shadow-pulse')
             }
         }
     }
@@ -283,6 +286,12 @@ class UI {
                 this.getCloseSettingsBtn().click()
             } else if (this.isHelpView) {
                 this.getCloseHelpBtn().click()
+            }
+        }
+        if (e.keyCode === 32) {  // Space
+            if (!this.isSettingsView && !this.isHelpView) {
+                this.getStopBtn().blur()
+                this.getStartBtn().click()                
             }
         }
     }

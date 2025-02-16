@@ -230,3 +230,20 @@ input::-webkit-inner-spin-button {
     font-size: 0.8rem;
     color: white;
 }
+
+@keyframes shadowPulse {
+    0% {
+      box-shadow: 0 0 0 white
+    }
+    50% {
+      box-shadow: 0 0 25px white;
+    }
+    100% {
+      box-shadow: 0 0 0 white;
+    }
+  }
+
+.shadow-pulse {
+    animation: shadowPulse 1s infinite ease-in-out;
+  }
+  
