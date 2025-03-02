@@ -72,7 +72,6 @@ class App {
 
             const isInterrupted = await this.currentRound.start()
             this.record()
-            this.sound.beepLong.play()
             if (isInterrupted) break
         }
 
@@ -94,6 +93,9 @@ class App {
         )
         this.isCurrentRoundRecorded = true
         this.records.push(this.currentRound.elapsed)
+        if (this.currentRoundNumber === this.config.numberOfRounds) {
+            this.stop()
+        }
     }
 
     onInterval = (elapsed) => {
@@ -103,7 +105,11 @@ class App {
         if (countdownDuration && countdownDuration < roundDuration) {
             const timeLeft = roundDuration - elapsed
             if (timeLeft > 0 && timeLeft <= countdownDuration) {
-                this.sound.beepShort.play()
+                if (timeLeft === 1) {
+                    this.sound.beepLong.play()
+                } else {
+                    this.sound.beepShort.play()
+                }
                 this.ui.getTimeIndicator().classList.add('shadow-pulse')
             } else {    
                 this.ui.getTimeIndicator().classList.remove('shadow-pulse')
