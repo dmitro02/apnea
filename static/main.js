@@ -62,6 +62,8 @@ class App {
 
         this.records = []
 
+        this.ui.onSessionStarted()
+
         for (let i = 1; i <= this.config.numberOfRounds; i++) {  
             this.currentRoundNumber = i
             this.isCurrentRoundRecorded = false
@@ -78,8 +80,8 @@ class App {
         this.isRunning = false
 
         this.ui.onSessionEnded(
-            this.maxHoldingTime, 
-            this.avrgHoldingTime
+            this.maxHoldTime, 
+            this.avrgHoldTime
         ) 
     }
 
@@ -117,13 +119,23 @@ class App {
         }
     }
 
-    get avrgHoldingTime() { 
+    get avrgHoldTime() { 
         const total = this.records.reduce((p, c) => p + c, 0)
         return Math.round(total / this.records.length)
     }
 
-    get maxHoldingTime() { 
+    get maxHoldTime() { 
         return Math.max(...this.records)
+    }
+
+    get holdTimeRatio() {
+        const totalHoldTime = this.records.reduce((p, c) => p + c, 0)
+        const totalSessionTime = this.config.numberOfRounds * this.config.roundDuration
+        return Math.round(totalHoldTime / totalSessionTime)
+    }
+
+    get effectiveness() {
+        return Math.round(this.avrgHoldTime * this.holdTimeRatio * Math.log(this.config.numberOfRounds + 1))
     }
 
     registerServiceWorker = () => {
@@ -279,11 +291,16 @@ class UI {
         this.renderSessionResults(roundNumber, elapsed)
     }
 
+    onSessionStarted = () => {
+        this.addClickListener(this.getMainPanel(), this.handleClickOnRecordBtn)
+    }
+
     onSessionEnded = (max, avrg) => {
         this.renderStartBtn()
         this.renderResetBtn()
         this.renderSessionResult(max, avrg)
         this.getOpenSettingsBtn().style.visibility = "visible"
+        this.removeClickListener(this.getMainPanel(), this.handleClickOnRecordBtn)
     }
 
     handlePressKey = (e) => {
@@ -302,7 +319,8 @@ class UI {
         }
     }
 
-    handleClickOnStartBtn = () => { 
+    handleClickOnStartBtn = (e) => { 
+        e.stopPropagation()
         this.beepShort()
         this.renderSessionResults()
         this.renderSessionResult()
@@ -312,7 +330,8 @@ class UI {
         this.app.start()
     }
 
-    handleClickOnStopBtn = () => {
+    handleClickOnStopBtn = (e) => {
+        e.stopPropagation()
         this.beepShort()
         this.app.stop()
     }
@@ -446,6 +465,12 @@ class Config {
     NUMBER_OF_ROUNDS_ITEM_NAME = 'apneaAppNumberOfRounds'
     COUNTDOWN_DURATION_ITEM_NAME = 'apneaAppCountdownDuration'
     VOLUME_ITEM_NAME = 'apneaAppVolume'
+
+    MAX_HOLD_TIME_ITEM_NAME = 'apneaAppMaxHoldTime'
+    AVRG_HOLD_TIME_ITEM_NAME = 'apneaAppAvrgHoldTime'
+    HOLD_TIME_RATIO_ITEM_NAME = 'apneaAppHoldTimeRatio'
+    EFFECTIVENESS_ITEM_NAME = 'apneaAppEffectiveness'
+
     constructor() {
         this.roundDuration = this.restoreFromLocalStorage(
             this.ROUND_DURATION_ITEM_NAME, 
@@ -463,6 +488,22 @@ class Config {
             this.VOLUME_ITEM_NAME, 
             this.DEFAULT_VOLUME
         ) 
+        this.maxHoldTimePrev = this.restoreFromLocalStorage(
+            this.MAX_HOLD_TIME_ITEM_NAME, 
+            0
+        )
+        this.avrgHoldTimePrev = this.restoreFromLocalStorage(
+            this.AVRG_HOLD_TIME_ITEM_NAME, 
+            0
+        )
+        this.holdTimeRatioPrev = this.restoreFromLocalStorage(
+            this.HOLD_TIME_RATIO_ITEM_NAME, 
+            0
+        )
+        this.effectivenessPrev = this.restoreFromLocalStorage(
+            this.EFFECTIVENESS_ITEM_NAME, 
+            0
+        )
     }
 
     setRoundDuration(val1, val2) {
@@ -487,6 +528,22 @@ class Config {
     setVolume(value) {
         this.volume = value
         localStorage.setItem(this.VOLUME_ITEM_NAME, value)
+    }
+
+    setMaxHoldTime(value) {
+        localStorage.setItem(this.MAX_HOLD_TIME_ITEM_NAME, value)
+    }
+
+    setAvrgHoldTime(value) {
+        localStorage.setItem(this.AVRG_HOLD_TIME_ITEM_NAME, value)
+    }
+
+    setHoldTimeRatio(value) {
+        localStorage.setItem(this.HOLD_TIME_RATIO_ITEM_NAME, value)
+    }   
+
+    setEffectiveness(value) {
+        localStorage.setItem(this.EFFECTIVENESS_ITEM_NAME, value)
     }
 
     restoreFromLocalStorage = (itemName, defaultValue) =>
