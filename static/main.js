@@ -81,7 +81,9 @@ class App {
 
         this.ui.onSessionEnded(
             this.maxHoldTime, 
-            this.avrgHoldTime
+            this.avrgHoldTime,
+            this.holdTimeRatio,
+            this.effectiveness
         ) 
     }
 
@@ -232,13 +234,15 @@ class UI {
             : this.getSessionResultsRight().appendChild(clone)
     }
 
-    renderSessionResult = (max, avrg) => {
+    renderSessionResult = (max, avrg, ratio, effectiveness) => {
         if (!max || !avrg) {
             this.getSessionResult().style.display = "none"
         } else {
             this.getSessionResult().style.display = "block"
             this.getSessionResultMax().innerText = this.formatTime(max)
             this.getSessionResultAvrg().innerText =  this.formatTime(avrg)
+            this.getSessionResultRatio().innerText = this.ratio
+            this.getSessionResultRating().innerText =  this.effectiveness
         }
     }
 
@@ -295,10 +299,10 @@ class UI {
         this.addClickListener(this.getMainPanel(), this.handleClickOnRecordBtn)
     }
 
-    onSessionEnded = (max, avrg) => {
+    onSessionEnded = (max, avrg, ratio, effectiveness) => {
         this.renderStartBtn()
         this.renderResetBtn()
-        this.renderSessionResult(max, avrg)
+        this.renderSessionResult(max, avrg, ratio, effectiveness)
         this.getOpenSettingsBtn().style.visibility = "visible"
         this.removeClickListener(this.getMainPanel(), this.handleClickOnRecordBtn)
     }
@@ -416,6 +420,8 @@ class UI {
     getSessionResult = () => this.getElement('.session-result')
     getSessionResultMax = () => this.getElement('.session-result-max-value')
     getSessionResultAvrg = () => this.getElement('.session-result-avrg-value')
+    getSessionResultRatio = () => this.getElement('.session-result-ratio-value')
+    getSessionResultRating = () => this.getElement('.session-result-rating-value')
     getRoundRecordTemplate = () => this.getElement('#round-record')
     getRoundNumber = (el) => this.getElement('.round-number', el)
     getRoundResult = (el) => this.getElement('.round-result', el)
