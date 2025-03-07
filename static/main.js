@@ -62,7 +62,7 @@ class App {
 
         this.records = []
 
-        this.ui.onSessionStarted()
+        await this.ui.onSessionStarted()
 
         for (let i = 1; i <= this.config.numberOfRounds; i++) {  
             this.currentRoundNumber = i
@@ -79,7 +79,7 @@ class App {
 
         this.isRunning = false
 
-        this.ui.onSessionEnded(
+        await this.ui.onSessionEnded(
             this.maxHoldTime, 
             this.avrgHoldTime,
             this.holdTimeRatio,
@@ -153,6 +153,7 @@ class UI {
     constructor(app) {
         this.app = app
         this.config = app.config
+        this.wakeLock = null
     }
 
     displayMainPanel = () => {
@@ -241,8 +242,8 @@ class UI {
             this.getSessionResult().style.display = "block"
             this.getSessionResultMax().innerText = this.formatTime(max)
             this.getSessionResultAvrg().innerText =  this.formatTime(avrg)
-            this.getSessionResultRatio().innerText = this.ratio
-            this.getSessionResultRating().innerText =  this.effectiveness
+            this.getSessionResultRatio().innerText = ratio
+            this.getSessionResultRating().innerText =  effectiveness
         }
     }
 
@@ -295,16 +296,18 @@ class UI {
         this.renderSessionResults(roundNumber, elapsed)
     }
 
-    onSessionStarted = () => {
+    onSessionStarted = async () => {
         this.addClickListener(this.getMainPanel(), this.handleClickOnRecordBtn)
+        this.wakeLock = await requestWakeLock()
     }
 
-    onSessionEnded = (max, avrg, ratio, effectiveness) => {
+    onSessionEnded = async (max, avrg, ratio, effectiveness) => {
         this.renderStartBtn()
         this.renderResetBtn()
         this.renderSessionResult(max, avrg, ratio, effectiveness)
         this.getOpenSettingsBtn().style.visibility = "visible"
         this.removeClickListener(this.getMainPanel(), this.handleClickOnRecordBtn)
+        await releaseWakeLock(this.wakeLock)
     }
 
     handlePressKey = (e) => {
@@ -560,6 +563,30 @@ class Config {
     getRoundDurationSec = () => this.roundDuration % 60
 
     getVolumeInteger = () => this.volume * 100
+}
+
+
+async function requestWakeLock() {
+    if ('wakeLock' in navigator) {
+        try {
+            const wakeLock = await navigator.wakeLock.request('screen');
+            return wakeLock
+        } catch (err) {
+            console.error(`${err.name}, ${err.message}`);
+            return null
+        }
+    }
+}
+
+async function releaseWakeLock(wakeLock) {
+    if (wakeLock !== null) {
+        try {
+            await wakeLock.release();
+            wakeLock = null;
+        } catch (err) {
+            console.error(`Error releasing wake lock: ${err.name}, ${err.message}`);
+        }
+    }
 }
 
 new App().init()
