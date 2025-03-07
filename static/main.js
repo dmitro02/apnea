@@ -133,7 +133,7 @@ class App {
     get holdTimeRatio() {
         const totalHoldTime = this.records.reduce((p, c) => p + c, 0)
         const totalSessionTime = this.config.numberOfRounds * this.config.roundDuration
-        return Math.round(totalHoldTime / totalSessionTime)
+        return totalHoldTime / totalSessionTime
     }
 
     get effectiveness() {
@@ -242,7 +242,7 @@ class UI {
             this.getSessionResult().style.display = "block"
             this.getSessionResultMax().innerText = this.formatTime(max)
             this.getSessionResultAvrg().innerText =  this.formatTime(avrg)
-            this.getSessionResultRatio().innerText = ratio
+            this.getSessionResultRatio().innerText = Math.round(ratio * 100) + '%'
             this.getSessionResultRating().innerText =  effectiveness
         }
     }
