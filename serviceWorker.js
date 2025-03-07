@@ -1,4 +1,5 @@
-const APNEA_CACHE = 'apneaCache'
+const CACHE_VERSION = '1.0.5';
+const CACHE_NAME = `apnea-${CACHE_VERSION}`;
 
 const ASSETS = [
   "./",
@@ -14,7 +15,7 @@ const ASSETS = [
 
 self.addEventListener("install", installEvent =>
   installEvent.waitUntil(
-    caches.open(APNEA_CACHE)
+    caches.open(CACHE_NAME)
       .then(cache => cache.addAll(ASSETS))
   )
 )
