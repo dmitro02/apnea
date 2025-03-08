@@ -114,9 +114,9 @@ class App {
                 } else {
                     this.sound.beepShort.play()
                 }
-                this.ui.getTimeIndicator().classList.add('shadow-pulse')
+                this.ui.switchCountdownShadowPulse(true)
             } else {    
-                this.ui.getTimeIndicator().classList.remove('shadow-pulse')
+                this.ui.switchCountdownShadowPulse(false)
             }
         }
     }
@@ -285,6 +285,14 @@ class UI {
 
         this.reset()
     }
+
+    switchCountdownShadowPulse = (isEnabled) => {
+        if (isEnabled) {
+            this.getTimeIndicator().classList.add('shadow-pulse')
+        } else {
+            this.getTimeIndicator().classList.remove('shadow-pulse')
+        }
+    }   
     
     onRoundStarted = (numberOfRounds, roundNumber) => {
         this.renderRoundIndicator(numberOfRounds, roundNumber)
@@ -302,6 +310,7 @@ class UI {
     }
 
     onSessionEnded = async (max, avrg, ratio, effectiveness) => {
+        this.switchCountdownShadowPulse(false)
         this.renderStartBtn()
         this.renderResetBtn()
         this.renderSessionResult(max, avrg, ratio, effectiveness)
@@ -474,10 +483,6 @@ class Config {
     NUMBER_OF_ROUNDS_ITEM_NAME = 'apneaAppNumberOfRounds'
     COUNTDOWN_DURATION_ITEM_NAME = 'apneaAppCountdownDuration'
     VOLUME_ITEM_NAME = 'apneaAppVolume'
-
-    MAX_HOLD_TIME_ITEM_NAME = 'apneaAppMaxHoldTime'
-    AVRG_HOLD_TIME_ITEM_NAME = 'apneaAppAvrgHoldTime'
-    HOLD_TIME_RATIO_ITEM_NAME = 'apneaAppHoldTimeRatio'
     EFFECTIVENESS_ITEM_NAME = 'apneaAppEffectiveness'
 
     constructor() {
@@ -497,18 +502,6 @@ class Config {
             this.VOLUME_ITEM_NAME, 
             this.DEFAULT_VOLUME
         ) 
-        this.maxHoldTimePrev = this.restoreFromLocalStorage(
-            this.MAX_HOLD_TIME_ITEM_NAME, 
-            0
-        )
-        this.avrgHoldTimePrev = this.restoreFromLocalStorage(
-            this.AVRG_HOLD_TIME_ITEM_NAME, 
-            0
-        )
-        this.holdTimeRatioPrev = this.restoreFromLocalStorage(
-            this.HOLD_TIME_RATIO_ITEM_NAME, 
-            0
-        )
         this.effectivenessPrev = this.restoreFromLocalStorage(
             this.EFFECTIVENESS_ITEM_NAME, 
             0
@@ -537,19 +530,7 @@ class Config {
     setVolume(value) {
         this.volume = value
         localStorage.setItem(this.VOLUME_ITEM_NAME, value)
-    }
-
-    setMaxHoldTime(value) {
-        localStorage.setItem(this.MAX_HOLD_TIME_ITEM_NAME, value)
-    }
-
-    setAvrgHoldTime(value) {
-        localStorage.setItem(this.AVRG_HOLD_TIME_ITEM_NAME, value)
-    }
-
-    setHoldTimeRatio(value) {
-        localStorage.setItem(this.HOLD_TIME_RATIO_ITEM_NAME, value)
-    }   
+    } 
 
     setEffectiveness(value) {
         localStorage.setItem(this.EFFECTIVENESS_ITEM_NAME, value)
